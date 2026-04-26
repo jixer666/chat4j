@@ -1,0 +1,34 @@
+import request from '@/utils/request'
+
+export function get${ClassName}Page(data) {
+    return request({
+        url: '/${moduleName}/${businessName}/page',
+        method: 'get',
+        params: data
+    })
+}
+
+export function update${ClassName}(data) {
+    return request({
+        url: '/${moduleName}/${businessName}',
+        method: 'put',
+        data: data
+    })
+}
+
+export function add${ClassName}(data) {
+    return request({
+        url: '/${moduleName}/${businessName}',
+        method: 'post',
+        data: data
+    })
+}
+
+
+export function delete${ClassName}(data) {
+    return request({
+        url: '/${moduleName}/${businessName}',
+        method: 'delete',
+        data: data
+    })
+}

@@ -1,0 +1,66 @@
+package ${packageName}.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import com.abc.chat4j.common.core.service.BaseServiceImpl;
+import com.abc.chat4j.common.domain.vo.PageResult;
+import com.abc.chat4j.common.util.AssertUtils;
+import ${packageName}.convert.${ClassName}Convert;
+import ${packageName}.domain.dto.${ClassName}DTO;
+import ${packageName}.domain.entity.${ClassName};
+import ${packageName}.domain.vo.${ClassName}VO;
+import ${packageName}.mapper.${ClassName}Mapper;
+import ${packageName}.service.${ClassName}Service;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * ${functionName}业务处理
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Service
+public class ${ClassName}ServiceImpl extends BaseServiceImpl<${ClassName}Mapper, ${ClassName}> implements ${ClassName}Service {
+
+    @Autowired
+    private ${ClassName}Mapper ${className}Mapper;
+
+    @Override
+    public PageResult get${ClassName}PageWithUiParam(${ClassName}DTO ${className}DTO) {
+        startPage();
+        List<${ClassName}> ${className}s = ${className}Mapper.select${ClassName}List(${className}DTO);
+        List<${ClassName}VO> ${className}VOList = pageList2CustomList(${className}s, (List<${ClassName}> list) -> {
+            return BeanUtil.copyToList(list, ${ClassName}VO.class);
+        });
+
+        return buildPageResult(${className}VOList);
+    }
+
+    @Override
+    public void update${ClassName}(${ClassName}DTO ${className}DTO) {
+        ${className}DTO.checkUpdateParams();
+        ${ClassName} ${className} = ${className}Mapper.selectById(${className}DTO.get${ClassName}Id());
+        AssertUtils.isNotEmpty(${className}, "${functionName}不存在");
+        BeanUtils.copyProperties(${className}DTO, ${className});
+        ${className}Mapper.updateById(${className});
+    }
+
+    @Override
+    public void save${ClassName}(${ClassName}DTO ${className}DTO) {
+        ${className}DTO.checkSaveParams();
+        ${ClassName} ${className} = ${ClassName}Convert.buildDefault${ClassName}By${ClassName}DTO(${className}DTO);
+        ${className}Mapper.insert(${className});
+    }
+
+    @Override
+    public void delete${ClassName}(${ClassName}DTO ${className}DTO) {
+        ${className}DTO.checkDeleteParams();
+
+        ${className}Mapper.deleteBatchIds(${className}DTO.get${ClassName}Ids());
+    }
+    
+
+}

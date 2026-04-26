@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abc.chat4j.system.mapper.RoleMapper">
+
+    <resultMap type="Role" id="RoleResult">
+        <result property="roleId"    column="role_id"    />
+        <result property="roleName"    column="role_name"    />
+        <result property="roleKey"    column="role_key"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="status"    column="status"    />
+        <result property="ver"    column="ver"    />
+    </resultMap>
+
+    <sql id="selectRoleVo">
+        select role_id, role_name, role_key, user_id, create_time, update_time, status, ver from tb_role
+    </sql>
+
+    <select id="selectRoleKeysByUserId" resultType="java.lang.String">
+        select r.role_key from tb_role r
+        left join tb_user_role ur on ur.role_id = r.role_id
+        left join tb_user u on ur.user_id = u.user_id
+        where u.user_id = #{userId}
+    </select>
+
+    <select id="selectRoleIdsByUserId" resultType="java.lang.Long">
+        select r.role_id from tb_role r
+        left join tb_user_role ur on ur.role_id = r.role_id
+        left join tb_user u on ur.user_id = u.user_id
+        where u.user_id = #{userId}
+    </select>
+
+    <select id="selectRoleIdsByMenuId" resultType="java.lang.Long">
+        select r.role_id from tb_role r
+        left join tb_role_menu rm on rm.role_id = r.role_id
+        where rm.menu_id = #{menuId}
+    </select>
+
+    <select id="selectRoleList" resultMap="RoleResult">
+        <include refid="selectRoleVo"/>
+        <where>
+            <if test="roleId != null">and role_id = #{roleId}</if>
+            <if test="roleName != null and roleName != ''">and role_name like concat('%', #{roleName}, '%')</if>
+            <if test="roleKey != null and roleKey != ''">and role_key = #{roleKey}</if>
+        </where>
+    </select>
+
+    <delete id="deleteRoleMenuByRoleId">
+        delete from tb_role_menu where role_id = #{roleId}
+    </delete>
+
+    <insert id="saveRoleMenu">
+        insert into tb_role_menu (role_id, menu_id) values
+        <foreach collection="list" separator="," item="item">
+            (#{roleId}, #{item})
+        </foreach>
+    </insert>
+
+    <delete id="deleteRoleByUserId">
+        delete from tb_user_role where user_id = #{userId}
+    </delete>
+
+    <insert id="saveUserRole">
+        insert into tb_user_role (user_id, role_id) values
+        <foreach collection="list" separator="," item="item">
+            (#{userId}, #{item})
+        </foreach>
+    </insert>
+
+    <select id="selectRoleListByRoleKeys" resultMap="RoleResult">
+        <include refid="selectRoleVo" />
+        where role_key in
+        <foreach collection="list" separator="," item="item" open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+</mapper>

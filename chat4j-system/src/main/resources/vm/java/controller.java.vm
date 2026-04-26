@@ -1,0 +1,63 @@
+package ${packageName}.controller;
+
+import com.abc.chat4j.common.annotation.Permission;
+import com.abc.chat4j.common.domain.vo.ApiResult;
+import com.abc.chat4j.common.domain.vo.PageResult;
+import ${packageName}.domain.dto.${ClassName}DTO;
+import ${packageName}.service.${ClassName}Service;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * ${functionName}控制器
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Api(tags = "${functionName}接口")
+@RestController
+@RequestMapping("/${moduleName}/${businessName}")
+public class ${ClassName}Controller {
+
+    @Autowired
+    private ${ClassName}Service ${className}Service;
+
+    @Permission("${moduleName}:${businessName}:list")
+    @ApiOperation("查询${functionName}分页")
+    @GetMapping("/page")
+    public ApiResult<PageResult> get${ClassName}Page(${ClassName}DTO ${className}DTO) {
+        PageResult ${className}Pages = ${className}Service.get${ClassName}PageWithUiParam(${className}DTO);
+
+        return ApiResult.success(${className}Pages);
+    }
+
+    @Permission("${moduleName}:${businessName}:edit")
+    @ApiOperation("更新${functionName}")
+    @PutMapping
+    public ApiResult<Void> update${ClassName}(@RequestBody ${ClassName}DTO ${className}DTO) {
+        ${className}Service.update${ClassName}(${className}DTO);
+
+        return ApiResult.success();
+    }
+
+    @Permission("${moduleName}:${businessName}:add")
+    @ApiOperation("新增${functionName}")
+    @PostMapping
+    public ApiResult<Void> save${ClassName}(@RequestBody ${ClassName}DTO ${className}DTO) {
+        ${className}Service.save${ClassName}(${className}DTO);
+
+        return ApiResult.success();
+    }
+
+    @Permission("${moduleName}:${businessName}:delete")
+    @ApiOperation("删除${functionName}")
+    @DeleteMapping
+    public ApiResult<Void> delete${ClassName}(@RequestBody ${ClassName}DTO ${className}DTO) {
+        ${className}Service.delete${ClassName}(${className}DTO);
+
+        return ApiResult.success();
+    }
+
+}

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abc.chat4j.system.mapper.GenerateTableColumnMapper">
+
+    <resultMap type="GenerateTableColumn" id="GenerateTableColumnResult">
+        <result property="genTableColumnId" column="gen_table_column_id" />
+        <result property="genTableId" column="gen_table_id" />
+        <result property="columnName" column="column_name" />
+        <result property="columnComment" column="column_comment" />
+        <result property="columnType" column="column_type" />
+        <result property="javaType" column="java_type" />
+        <result property="javaField" column="java_field" />
+        <result property="isPk" column="is_pk" />
+        <result property="isRequire" column="is_require" />
+        <result property="sort" column="sort" />
+        <result property="isIncrement" column="is_increment" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
+        <result property="status" column="status" />
+        <result property="ver" column="ver" />
+    </resultMap>
+
+    <sql id="selectGenerateTableColumnVo">
+        select
+            gen_table_column_id,
+            gen_table_id,
+            column_name,
+            column_comment,
+            column_type,
+            java_type,
+            java_field,
+            is_pk,
+            is_require,
+            sort,
+            is_increment,
+            create_time,
+            update_time,
+            status,
+            ver
+        from gen_table_column
+    </sql>
+
+    <select id="selectGenerateTableColumnList" resultMap="GenerateTableColumnResult">
+        <include refid="selectGenerateTableColumnVo" />
+    </select>
+
+    <select id="selectDbTableColumnsByName" resultMap="GenerateTableColumnResult">
+        select column_name, (case when (is_nullable = 'no' <![CDATA[ && ]]> column_key != 'PRI') then '1' else null end) as is_required, (case when column_key = 'PRI' then '1' else '0' end) as is_pk, ordinal_position as sort, column_comment, (case when extra = 'auto_increment' then '1' else '0' end) as is_increment, column_type
+        from information_schema.columns where table_schema = (select database()) and table_name = (#{tableName})
+        order by ordinal_position
+    </select>
+
+    <delete id="deleteGenerateTableColumnByGenTableIds">
+        delete from tb_gen_table_column
+        <where>
+            gen_table_id in
+            <foreach collection="list" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </where>
+    </delete>
+
+</mapper>

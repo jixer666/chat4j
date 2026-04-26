@@ -1,0 +1,39 @@
+package ${packageName}.domain.dto;
+
+import cn.hutool.core.collection.CollUtil;
+import com.abc.chat4j.common.util.AssertUtils;
+import lombok.Data;
+
+import java.util.List;
+
+/**
+ * ${functionName}DTO对象
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Data
+public class ${ClassName}DTO {
+
+    #foreach ($column in $columns)
+    private $column.javaType $column.javaField;
+
+    #end
+
+    // 用于批量删除
+    private List<Long> ${className}Ids;
+
+    public void checkUpdateParams() {
+        AssertUtils.isNotEmpty(this, "${functionName}参数不能为空");
+        AssertUtils.isNotEmpty(${className}Id, "${functionName}ID不能为空");
+    }
+
+    public void checkSaveParams() {
+        AssertUtils.isNotEmpty(this, "${functionName}参数不能为空");
+    }
+
+    public void checkDeleteParams() {
+        AssertUtils.isNotEmpty(this, "${functionName}参数不能为空");
+        AssertUtils.isTrue(CollUtil.isNotEmpty(${className}Ids), "${functionName}ID列表不能为空");
+    }
+}

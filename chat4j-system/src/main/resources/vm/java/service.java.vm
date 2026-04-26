@@ -1,0 +1,23 @@
+package ${packageName}.service;
+
+import com.abc.chat4j.common.domain.vo.PageResult;
+import ${packageName}.domain.dto.${ClassName}DTO;
+import ${packageName}.domain.entity.${ClassName};
+import com.baomidou.mybatisplus.extension.service.IService;
+
+/**
+ * ${functionName}接口
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+public interface ${ClassName}Service extends IService<${ClassName}> {
+
+    PageResult get${ClassName}PageWithUiParam(${ClassName}DTO ${className}DTO);
+
+    void update${ClassName}(${ClassName}DTO ${className}DTO);
+
+    void save${ClassName}(${ClassName}DTO ${className}DTO);
+
+    void delete${ClassName}(${ClassName}DTO ${className}DTO);
+}

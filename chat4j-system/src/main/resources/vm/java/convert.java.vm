@@ -1,0 +1,22 @@
+package ${packageName}.convert;
+
+import cn.hutool.core.bean.BeanUtil;
+import com.abc.chat4j.common.util.IdUtils;
+import ${packageName}.domain.dto.${ClassName}DTO;
+import ${packageName}.domain.entity.${ClassName};
+
+/**
+ * ${functionName}转换器
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+public class ${ClassName}Convert {
+    public static ${ClassName} buildDefault${ClassName}By${ClassName}DTO(${ClassName}DTO ${className}DTO) {
+        ${ClassName} ${className} = BeanUtil.copyProperties(${className}DTO, ${ClassName}.class);
+        ${className}.set${ClassName}Id(IdUtils.getId());
+        ${className}.setCommonParams();
+
+        return ${className};
+    }
+}

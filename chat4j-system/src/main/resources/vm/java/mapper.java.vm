@@ -1,0 +1,19 @@
+package ${packageName}.mapper;
+
+import ${packageName}.domain.dto.${ClassName}DTO;
+import ${packageName}.domain.entity.${ClassName};
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+/**
+ * ${functionName}Mapper接口
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Mapper
+public interface ${ClassName}Mapper extends BaseMapper<${ClassName}> {
+    List<${ClassName}> select${ClassName}List(${ClassName}DTO ${className}DTO);
+}

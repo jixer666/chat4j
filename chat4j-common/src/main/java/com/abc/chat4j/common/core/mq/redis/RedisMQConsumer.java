@@ -1,0 +1,28 @@
+package com.abc.chat4j.common.core.mq.redis;
+
+
+import java.util.List;
+
+/**
+ * redis 队列消费者抽象类
+ */
+public abstract class RedisMQConsumer<T> {
+
+     /**
+      * 消费消息回调(单条)
+      */
+     public void onMessage(T data){}
+
+     /**
+      * 消费消息回调(批量)
+      */
+     public void onMessage(List<T> dataList){}
+
+     /**
+      * 队列是否就绪，返回true才会开始消费
+      */
+     public Boolean isReady(){
+          return true;
+     }
+
+}
