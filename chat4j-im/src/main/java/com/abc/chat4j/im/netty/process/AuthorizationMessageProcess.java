@@ -2,6 +2,7 @@ package com.abc.chat4j.im.netty.process;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.abc.chat4j.common.constant.CacheConstants;
+import com.abc.chat4j.common.constant.HttpStatus;
 import com.abc.chat4j.common.domain.dto.LoginUserDTO;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.im.annotation.MessageType;
@@ -32,7 +33,7 @@ public class AuthorizationMessageProcess extends MessageProcess<AuthorizationMes
 
         NettyUtil.setAttr(ctx.channel(), NettyUtil.DEVICE, message.getDevice());
         LoginUserDTO loginUserDTO = tokenService.getLoginUserDTO(message.getToken());
-        AssertUtils.isNotEmpty(loginUserDTO, "身份认证失败，请重新登录");
+        AssertUtils.isNotEmpty(loginUserDTO, HttpStatus.FORBIDDEN, "身份认证失败，请重新登录");
         NettyUtil.setAttr(ctx.channel(), NettyUtil.LOGIN_USER, loginUserDTO);
 
         ImSendInfo sendInfo = new ImSendInfo();
@@ -43,7 +44,7 @@ public class AuthorizationMessageProcess extends MessageProcess<AuthorizationMes
 
     private void checkAuthorizationMessageParams(AuthorizationMessage message) {
         AssertUtils.isNotEmpty(message, "消息参数不能为空");
-        AssertUtils.isNotEmpty(message.getToken(), "token不能为空");
+        AssertUtils.isNotEmpty(message.getToken(), HttpStatus.UNAUTHORIZED,"token不能为空");
         AssertUtils.isNotEmpty(message.getDevice(), "device不能为空");
     }
 

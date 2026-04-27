@@ -1,8 +1,9 @@
 package com.abc.chat4j.platform.controller;
 
 import com.abc.chat4j.common.domain.vo.ApiResult;
+import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
-import com.abc.chat4j.platform.domain.vo.MessageVo;
+import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.abc.chat4j.platform.service.MessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,10 +27,18 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
+    @ApiOperation("发送消息")
+    @PostMapping("/send")
+    public ApiResult<MessageVO> sendMessage(@RequestBody ImSendInfo imSendInfo) {
+        MessageVO messageVo = messageService.sendMessage(imSendInfo);
+        return ApiResult.success(messageVo);
+    }
+
+
     @ApiOperation("拉取离线消息")
-    @PostMapping("/loadOfflineMessage")
-    public ApiResult<List<MessageVo>> loadOfflineMessage(@RequestBody MessagePullDTO messagePullDTO){
-        List<MessageVo> messageList = messageService.loadOfflineMessage(messagePullDTO);
+    @PostMapping("/loadOfflineList")
+    public ApiResult<List<MessageVO>> loadOfflineList(@RequestBody MessagePullDTO messagePullDTO){
+        List<MessageVO> messageList = messageService.selectOfflineMessageList(messagePullDTO);
         return ApiResult.success(messageList);
     }
 

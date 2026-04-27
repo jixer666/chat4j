@@ -1,6 +1,5 @@
 package com.abc.chat4j.im.netty;
 
-import com.abc.chat4j.im.constant.ChannelAttrKey;
 import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.im.factory.MessageProcessFactory;
 import com.abc.chat4j.im.netty.process.MessageProcess;
@@ -9,7 +8,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
 /**

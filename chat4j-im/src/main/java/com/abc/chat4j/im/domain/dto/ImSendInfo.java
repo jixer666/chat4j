@@ -16,4 +16,6 @@ public class ImSendInfo {
 
     private Object data;
 
+    private Long roomId;
+
 }

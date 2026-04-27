@@ -17,5 +17,8 @@
     <sql id="selectPrivateRoomVo">
         select private_room_id, room_id, user_id, friend_id, room_key, create_time, update_time, status, ver from tb_private_room
     </sql>
+    <select id="selectByRoomId" resultMap="PrivateRoomResult">
+        select * from tb_private_room where room_id = #{roomId}
+    </select>
 
 </mapper>

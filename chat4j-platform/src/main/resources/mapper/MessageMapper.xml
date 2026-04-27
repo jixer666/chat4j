@@ -6,6 +6,7 @@
         <result property="msgId"    column="msg_id"    />
         <result property="tempMsgId"    column="temp_msg_id"    />
         <result property="userId"    column="user_id"    />
+        <result property="userInfo"    column="user_info" typeHandler="com.abc.chat4j.platform.domain.entity.typehandler.MessageUserInfoTypeHandler" />
         <result property="type"    column="type"    />
         <result property="content"    column="content"    />
         <result property="roomId"    column="room_id"    />
@@ -16,13 +17,18 @@
     </resultMap>
 
     <sql id="selectMessageVo">
-        select msg_id, temp_msg_id, user_id, type, content, room_id, create_time, update_time, status, ver from tb_message
+        select msg_id, temp_msg_id, user_id, user_info, type, content, room_id, create_time, update_time, status, ver from tb_message
     </sql>
 
-    <select id="selectOfflineList" resultMap="MessageResult">
-        select msgId, tempMsgId, userId, type, content, createTime, status
+    <select id="selectMessageList" resultMap="MessageResult">
+        select msg_id, temp_msg_id, user_id, user_info, type, room_id, content, create_time, status
         from tb_message
-        where
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="msgId != null">and msg_id > #{msgId}</if>
+            <if test="begin != null">and create_time >= #{begin}</if>
+            <if test="end != null">and create_time <![CDATA[<]]> #{end}</if>
+        </where>
     </select>
 
 </mapper>

@@ -100,6 +100,13 @@ public class AssertUtils {
         }
     }
 
+    public static void isNotEmpty(Object obj, Integer code, String msg) {
+        if (isEmpty(obj)) {
+            throwException(code, msg);
+        }
+    }
+
+
     //如果不是非空对象，则抛异常
     public static void isEmpty(Object obj, String msg) {
         if (!isEmpty(obj)) {
@@ -125,6 +132,10 @@ public class AssertUtils {
 
     private static void throwException(String msg) {
         throw new GlobalException(msg);
+    }
+
+    private static void throwException(Integer code, String msg) {
+        throw new GlobalException(code, msg);
     }
 
 }

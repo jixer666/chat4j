@@ -6,4 +6,5 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface PrivateRoomMapper extends BaseMapper<PrivateRoom> {
+    PrivateRoom selectByRoomId(Long roomId);
 }

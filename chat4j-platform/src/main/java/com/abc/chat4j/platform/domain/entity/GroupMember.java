@@ -6,11 +6,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("tb_room_member")
-public class RoomMember extends BaseEntity {
+@TableName("tb_group_member")
+public class GroupMember extends BaseEntity {
 
     @TableId
-    private Long roomMemberId;
+    private Long groupMemberId;
 
     private Long userId;
 

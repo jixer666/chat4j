@@ -14,6 +14,8 @@ public class GroupRoom extends BaseEntity {
 
     private Long roomId;
 
+    private Long groupId;
+
     private Long userId;
 
     private String name;

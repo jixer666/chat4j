@@ -22,4 +22,7 @@ public class Conversation extends BaseEntity {
 
     private Long lastMsgId;
 
+    private Integer isPinned;
+
+    private Integer isMuted;
 }

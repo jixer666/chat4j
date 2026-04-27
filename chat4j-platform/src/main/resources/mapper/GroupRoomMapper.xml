@@ -5,6 +5,7 @@
     <resultMap type="GroupRoom" id="GroupRoomResult">
         <result property="groupRoomId"    column="group_room_id"    />
         <result property="roomId"    column="room_id"    />
+        <result property="groupId"    column="group_id"    />
         <result property="userId"    column="user_id"    />
         <result property="name"    column="name"    />
         <result property="avatar"    column="avatar"    />
@@ -15,7 +16,11 @@
     </resultMap>
 
     <sql id="selectGroupRoomVo">
-        select group_room_id, room_id, user_id, name, avatar, create_time, update_time, status, ver from tb_group_room
+        select group_room_id, room_id, group_id, user_id, name, avatar, create_time, update_time, status, ver from tb_group_room
     </sql>
+    <select id="selectByRoomIdAndUid" resultMap="GroupRoomResult">
+        select * from tb_group_room
+        where room_id = #{roomId} and user_id = #{userId}
+    </select>
 
 </mapper>

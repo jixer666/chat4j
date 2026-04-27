@@ -4,4 +4,7 @@ import com.abc.chat4j.platform.domain.entity.Room;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface RoomService extends IService<Room> {
+    Room selectRoomByRoomId(Long roomId);
+
+    void checkUserInRoom(Long userId, Long roomId);
 }

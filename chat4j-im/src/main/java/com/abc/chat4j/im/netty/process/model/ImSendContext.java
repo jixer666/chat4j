@@ -17,4 +17,8 @@ public class ImSendContext {
     private ChannelHandlerContext ctx;
 
     private Object data;
+
+    public ImSendContext(Object data) {
+        this.data = data;
+    }
 }

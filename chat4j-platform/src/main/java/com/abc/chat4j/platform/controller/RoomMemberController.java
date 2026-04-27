@@ -1,9 +1,7 @@
 package com.abc.chat4j.platform.controller;
 
-import com.abc.chat4j.platform.domain.entity.RoomMember;
-import com.abc.chat4j.platform.service.RoomMemberService;
+import com.abc.chat4j.platform.service.GroupMemberService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoomMemberController {
 
     @Autowired
-    private RoomMemberService roomMemberService;
+    private GroupMemberService groupMemberService;
 
 }

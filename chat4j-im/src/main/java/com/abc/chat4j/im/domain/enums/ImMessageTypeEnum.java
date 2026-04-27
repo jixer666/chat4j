@@ -12,13 +12,25 @@ import lombok.Getter;
 public enum ImMessageTypeEnum {
 
     AUTHORIZATION(1, "认证"),
+    HEART(2, "心跳"),
     TEXT(10, "文本"),
 
+
+    ERROR(9999, "错误信息"),
     ;
 
 
     private Integer type;
     private String desc;
+
+    public static ImMessageTypeEnum typeOf(Integer type) {
+        for (ImMessageTypeEnum imMessageTypeEnum : ImMessageTypeEnum.values()) {
+            if (imMessageTypeEnum.getType().equals(type)) {
+                return imMessageTypeEnum;
+            }
+        }
+        return null;
+    }
 
 
 }
