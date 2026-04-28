@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2026/4/26
  */
 @Data
-public class ConversationPullDTO extends PullDTO{
+public class UserFriendPullDTO extends PullDTO {
 
 
 }

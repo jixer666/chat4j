@@ -1,12 +1,21 @@
 package com.abc.chat4j.platform.service.impl;
 
+import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.util.AssertUtils;
+import com.abc.chat4j.common.util.SecurityUtils;
+import com.abc.chat4j.platform.domain.context.UserFriendQueryContext;
+import com.abc.chat4j.platform.domain.dto.UserFriendPullDTO;
 import com.abc.chat4j.platform.domain.entity.UserFriend;
+import com.abc.chat4j.platform.domain.vo.ImUserVO;
 import com.abc.chat4j.platform.mapper.UserFriendMapper;
 import com.abc.chat4j.platform.service.UserFriendService;
+import com.abc.chat4j.system.cache.UserCache;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserFriendServiceImpl extends ServiceImpl<UserFriendMapper, UserFriend> implements UserFriendService {
@@ -14,10 +23,46 @@ public class UserFriendServiceImpl extends ServiceImpl<UserFriendMapper, UserFri
     @Autowired
     private UserFriendMapper userFriendMapper;
 
+    @Autowired
+    private UserCache userCache;
+
     @Override
     public UserFriend selectUserFriendByUidAndFriendId(Long userId, Long friendId) {
         AssertUtils.isNotEmpty(userId, "用户ID不能为空");
         AssertUtils.isNotEmpty(friendId, "好友ID不能为空");
         return userFriendMapper.selectByUidAndFriendId(userId, friendId);
+    }
+
+    @Override
+    public List<ImUserVO> selectOfflineUserFriendList(UserFriendPullDTO userFriendPullDTO) {
+        checkUserFriendPullDTOParams(userFriendPullDTO);
+
+        UserFriendQueryContext context = new UserFriendQueryContext();
+        context.setUserId(SecurityUtils.getUserId());
+        context.setMinUpdateTime(userFriendPullDTO.getMinUpdateTime());
+        List<UserFriend> messageList = selectUserFriend(context);
+
+        List<Long> userIdSet = messageList.stream().map(UserFriend::getFriendId).collect(Collectors.toList());
+        Map<Long, User> userMap = userCache.getBatch(userIdSet);
+
+        return messageList.stream().map(item -> buildImUserVO(item, userMap)).collect(Collectors.toList());
+    }
+
+    private ImUserVO buildImUserVO(UserFriend userFriend, Map<Long, User> userMap) {
+        User user = userMap.get(userFriend.getFriendId());
+        ImUserVO imUserVO = new ImUserVO();
+        imUserVO.setUserId(user.getUserId());
+        imUserVO.setUsername(user.getUsername());
+        imUserVO.setAvatar(user.getAvatar());
+        imUserVO.setNickname(user.getNickname());
+        return imUserVO;
+    }
+
+    private List<UserFriend> selectUserFriend(UserFriendQueryContext context) {
+        return userFriendMapper.selectUserFriendList(context);
+    }
+
+    private void checkUserFriendPullDTOParams(UserFriendPullDTO userFriendPullDTO) {
+        AssertUtils.isNotEmpty(userFriendPullDTO, "参数不能为空");
     }
 }

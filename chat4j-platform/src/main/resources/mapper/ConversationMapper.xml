@@ -22,7 +22,7 @@
         select conversation_id, user_id, room_id, active_time, last_msg_id, status from tb_conversation
         <where>
             <if test="userId != null">and user_id = #{userId}</if>
-            <if test="minConversationId != null">and conversation_id > #{minConversationId}</if>
+            <if test="minUpdateTime != null">and update_time >= #{minUpdateTime}</if>
         </where>
     </select>
 

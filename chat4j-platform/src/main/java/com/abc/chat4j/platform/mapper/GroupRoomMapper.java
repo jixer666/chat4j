@@ -6,8 +6,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface GroupRoomMapper extends BaseMapper<GroupRoom> {
-    GroupMember selectByRoomIdAndUid(@Param("roomId") Long roomId,
-                                     @Param("userId") Long userId);
+    List<GroupRoom> selectGroupRoomListByRoomIds(@Param("roomIds") List<Long> roomIds);
 }

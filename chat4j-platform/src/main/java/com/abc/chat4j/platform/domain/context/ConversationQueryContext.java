@@ -1,4 +1,4 @@
-package com.abc.chat4j.platform.domain;
+package com.abc.chat4j.platform.domain.context;
 
 import lombok.Data;
 
@@ -9,6 +9,6 @@ public class ConversationQueryContext {
 
     private Long userId;
 
-    private Long minConversationId;
+    private Date minUpdateTime;
 
 }

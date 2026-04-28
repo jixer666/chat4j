@@ -1,9 +1,11 @@
 package com.abc.chat4j.platform.service;
 
 import com.abc.chat4j.platform.domain.entity.GroupRoom;
-import com.abc.chat4j.platform.domain.entity.GroupMember;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 public interface GroupRoomService extends IService<GroupRoom> {
-    GroupMember selectGroupMemberByRoomIdAndUid(Long roomId, Long userId);
+
+    List<GroupRoom> selectGroupRoomListByRoomIds(List<Long> roomIds);
 }

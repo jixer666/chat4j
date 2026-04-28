@@ -22,7 +22,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implements UserService {
@@ -37,6 +39,14 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     public User getUserById(Long userId) {
         AssertUtils.isNotEmpty(userId, "用户ID不能为空");
         return userMapper.selectById(userId);
+    }
+
+    @Override
+    public List<User> getUserListByIds(List<Long> userIdList) {
+        if (CollUtil.isEmpty(userIdList)) {
+            return new ArrayList<>();
+        }
+        return userMapper.selectBatchIds(userIdList);
     }
 
     @Override

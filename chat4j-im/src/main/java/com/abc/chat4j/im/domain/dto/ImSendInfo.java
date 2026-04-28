@@ -18,4 +18,8 @@ public class ImSendInfo {
 
     private Long roomId;
 
+    private Long userId;
+
+    private Long tempMsgId;
+
 }

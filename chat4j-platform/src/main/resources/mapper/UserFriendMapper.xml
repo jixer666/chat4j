@@ -20,5 +20,12 @@
         select * from tb_user_friend
         where user_id = #{userId} and friend_id = #{friendId}
     </select>
+    <select id="selectUserFriendList" resultMap="UserFriendResult">
+        select * from tb_user_friend
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="minUpdateTime != null">and update_time >= #{minUpdateTime}</if>
+        </where>
+    </select>
 
 </mapper>

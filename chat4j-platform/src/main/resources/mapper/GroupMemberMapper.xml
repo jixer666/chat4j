@@ -3,7 +3,7 @@
 <mapper namespace="com.abc.chat4j.platform.mapper.GroupMemberMapper">
 
     <resultMap type="GroupMember" id="RoomMemberResult">
-        <result property="roomMemberId"    column="room_member_id"    />
+        <result property="groupMemberId"    column="group_member_id"    />
         <result property="userId"    column="user_id"    />
         <result property="groupId"    column="group_id"    />
         <result property="roomId"    column="room_id"    />
@@ -16,5 +16,14 @@
     <sql id="selectRoomMemberVo">
         select room_member_id, user_id, group_id, room_id, create_time, update_time, status, ver from tb_room_member
     </sql>
+    <select id="selectByRoomIdAndUid" resultMap="RoomMemberResult">
+        select * from tb_room_member
+        where room_id = #{roomId} and user_id = #{userId}
+    </select>
+
+    <select id="selectGroupMemberByRoomId" resultMap="RoomMemberResult">
+        select * from tb_room_member
+        where room_id = #{roomId} and user_id = #{userId}
+    </select>
 
 </mapper>

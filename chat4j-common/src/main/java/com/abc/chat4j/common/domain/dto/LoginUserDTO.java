@@ -54,6 +54,8 @@ public class LoginUserDTO implements UserDetails {
 
     private String os;
 
+    private Integer device;
+
     /**
      * 用户信息
      */

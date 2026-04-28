@@ -1,19 +1,27 @@
 package com.abc.chat4j.platform.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.SecurityUtils;
-import com.abc.chat4j.platform.domain.ConversationQueryContext;
+import com.abc.chat4j.platform.constant.ImConstant;
+import com.abc.chat4j.platform.domain.context.ConversationQueryContext;
 import com.abc.chat4j.platform.domain.dto.ConversationPullDTO;
 import com.abc.chat4j.platform.domain.entity.Conversation;
 import com.abc.chat4j.platform.domain.vo.ConversationVO;
+import com.abc.chat4j.platform.domain.vo.RoomInfoVO;
 import com.abc.chat4j.platform.mapper.ConversationMapper;
 import com.abc.chat4j.platform.service.ConversationService;
+import com.abc.chat4j.platform.service.RoomService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,31 +30,40 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
     @Autowired
     private ConversationMapper conversationMapper;
 
+    @Autowired
+    private RoomService roomService;
+
     @Override
     public List<ConversationVO> selectConversationList(ConversationPullDTO conversationPullDTO) {
         checkConversationPullDTOParams(conversationPullDTO);
 
         ConversationQueryContext context = new ConversationQueryContext();
         context.setUserId(SecurityUtils.getUserId());
-        context.setMinConversationId(context.getMinConversationId());
+        context.setMinUpdateTime(context.getMinUpdateTime());
         List<Conversation> conversationList = selectConversationList(context);
 
-        return conversationList.stream().map(this::buildConversationVO).collect(Collectors.toList());
+        return buildConversationVOList(conversationList);
     }
 
     private void checkConversationPullDTOParams(ConversationPullDTO conversationPullDTO) {
         AssertUtils.isNotEmpty(conversationPullDTO, "参数不能为空");
-        if (Objects.isNull(conversationPullDTO.getMinConversationId())) {
-            conversationPullDTO.setMinConversationId(0L);
+        if (Objects.isNull(conversationPullDTO.getMinUpdateTime())) {
+            // 若不存在更新时间，默认取7天内的
+            conversationPullDTO.setMinUpdateTime(DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_CONVERSATION_DAYS)));
         }
     }
 
-    private ConversationVO buildConversationVO(Conversation conversation) {
-
-
-        return null;
+    private List<ConversationVO> buildConversationVOList(List<Conversation> conversationList) {
+        List<Long> roomIdList = conversationList.stream().map(Conversation::getRoomId).collect(Collectors.toList());
+        List<RoomInfoVO> roomInfoList = roomService.selectRoomInfoVOListByRoomIds(roomIdList);
+        Map<Long, RoomInfoVO> roomInfoMap = roomInfoList.stream().collect(Collectors.toMap(RoomInfoVO::getRoomId, Function.identity()));
+        return conversationList.stream().map(item -> {
+            ConversationVO conversationVO = BeanUtil.copyProperties(item, ConversationVO.class);
+            RoomInfoVO roomInfo = roomInfoMap.get(item.getRoomId());
+            conversationVO.setRoomInfoVO(roomInfo);
+            return conversationVO;
+        }).collect(Collectors.toList());
     }
-
 
     private List<Conversation> selectConversationList(ConversationQueryContext context) {
         return conversationMapper.selectConversationList(context);

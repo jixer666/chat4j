@@ -20,5 +20,11 @@
     <select id="selectByRoomId" resultMap="PrivateRoomResult">
         select * from tb_private_room where room_id = #{roomId}
     </select>
+    <select id="selectPrivateRoomListByRoomIds" resultMap="PrivateRoomResult">
+        select * from tb_private_room where room_id in
+        <foreach collection="roomIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 
 </mapper>

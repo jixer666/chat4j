@@ -32,9 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FastByteArrayOutputStream;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,7 +69,16 @@ public class IndexServiceImpl implements IndexService {
     public String login(LoginDTO loginDTO) {
         AuthStrategy authStrategy = LoginStrategyFactory.getAuthStrategy(loginDTO.getAuthType());
         LoginUserDTO loginUser = authStrategy.authenticate(loginDTO);
+        setLoginParams(loginUser);
         return tokenService.createToken(loginUser);
+    }
+
+    private void setLoginParams(LoginUserDTO loginUser) {
+        // 设置设备号
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String device = request.getHeader("device");
+        loginUser.setDevice(Integer.valueOf(device));
+
     }
 
     @Override

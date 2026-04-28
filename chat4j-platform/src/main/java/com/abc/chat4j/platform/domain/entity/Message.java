@@ -14,7 +14,7 @@ public class Message extends BaseEntity {
     @TableId
     private Long msgId;
 
-    private String tempMsgId;
+    private Long tempMsgId;
 
     private Long userId;
 

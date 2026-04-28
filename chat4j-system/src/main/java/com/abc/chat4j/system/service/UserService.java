@@ -8,10 +8,14 @@ import com.abc.chat4j.system.domain.vo.UserRoleVO;
 import com.abc.chat4j.system.domain.vo.UserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 
 public interface UserService extends IService<User> {
 
     User getUserById(Long userId);
+
+    List<User> getUserListByIds(List<Long> userIdList);
 
     User getUserByUsername(String username);
 

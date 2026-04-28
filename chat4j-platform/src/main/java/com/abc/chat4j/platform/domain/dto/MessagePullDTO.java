@@ -7,8 +7,6 @@ import lombok.Data;
  * @date 2026/4/26
  */
 @Data
-public class MessagePullDTO {
-
-    private Long minMsgId;
+public class MessagePullDTO extends PullDTO{
 
 }

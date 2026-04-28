@@ -1,7 +1,6 @@
 package com.abc.chat4j.im.netty.process;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.abc.chat4j.common.constant.CacheConstants;
 import com.abc.chat4j.common.constant.HttpStatus;
 import com.abc.chat4j.common.domain.dto.LoginUserDTO;
 import com.abc.chat4j.common.util.AssertUtils;

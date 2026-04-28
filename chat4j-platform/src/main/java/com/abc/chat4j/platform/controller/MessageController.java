@@ -1,6 +1,7 @@
 package com.abc.chat4j.platform.controller;
 
 import com.abc.chat4j.common.domain.vo.ApiResult;
+import com.abc.chat4j.common.util.SecurityUtils;
 import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
@@ -30,10 +31,10 @@ public class MessageController {
     @ApiOperation("发送消息")
     @PostMapping("/send")
     public ApiResult<MessageVO> sendMessage(@RequestBody ImSendInfo imSendInfo) {
+        imSendInfo.setUserId(SecurityUtils.getUserId());
         MessageVO messageVo = messageService.sendMessage(imSendInfo);
         return ApiResult.success(messageVo);
     }
-
 
     @ApiOperation("拉取离线消息")
     @PostMapping("/loadOfflineList")
