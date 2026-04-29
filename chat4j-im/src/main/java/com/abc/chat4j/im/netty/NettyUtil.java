@@ -1,5 +1,6 @@
 package com.abc.chat4j.im.netty;
 
+import com.abc.chat4j.common.constant.RequestHeaderConstants;
 import com.abc.chat4j.common.domain.dto.LoginUserDTO;
 import io.netty.channel.Channel;
 import io.netty.util.Attribute;
@@ -10,7 +11,7 @@ public class NettyUtil {
     public static AttributeKey<String> TOKEN = AttributeKey.valueOf("token");
     public static AttributeKey<String> IP = AttributeKey.valueOf("ip");
     public static AttributeKey<LoginUserDTO> LOGIN_USER = AttributeKey.valueOf("loginUserDTO");
-    public static AttributeKey<Integer> DEVICE = AttributeKey.valueOf("device");
+    public static AttributeKey<Integer> DEVICE = AttributeKey.valueOf(RequestHeaderConstants.DEVICE);
 
     public static <T> void setAttr(Channel channel, AttributeKey<T> attributeKey, T data) {
         Attribute<T> attr = channel.attr(attributeKey);

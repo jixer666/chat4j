@@ -2,7 +2,9 @@ package com.abc.chat4j.platform.service.impl;
 
 import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.util.AssertUtils;
+import com.abc.chat4j.common.util.DateUtils;
 import com.abc.chat4j.common.util.SecurityUtils;
+import com.abc.chat4j.platform.constant.ImConstant;
 import com.abc.chat4j.platform.domain.context.UserFriendQueryContext;
 import com.abc.chat4j.platform.domain.dto.UserFriendPullDTO;
 import com.abc.chat4j.platform.domain.entity.UserFriend;
@@ -64,5 +66,10 @@ public class UserFriendServiceImpl extends ServiceImpl<UserFriendMapper, UserFri
 
     private void checkUserFriendPullDTOParams(UserFriendPullDTO userFriendPullDTO) {
         AssertUtils.isNotEmpty(userFriendPullDTO, "参数不能为空");
+        // 好友列表最大取30天内的
+        Date minUpdateTime = userFriendPullDTO.getMinUpdateTime();
+        Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_USER_FRIEND_DAYS));
+        userFriendPullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
+                minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
     }
 }

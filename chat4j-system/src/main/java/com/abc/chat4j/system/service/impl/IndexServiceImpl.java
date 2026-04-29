@@ -2,8 +2,10 @@ package com.abc.chat4j.system.service.impl;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
+import com.abc.chat4j.common.config.ServerConfig;
 import com.abc.chat4j.common.constant.CacheConstants;
 import com.abc.chat4j.common.constant.MenuConstants;
+import com.abc.chat4j.common.constant.RequestHeaderConstants;
 import com.abc.chat4j.common.exception.GlobalException;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.RedisUtils;
@@ -69,15 +71,17 @@ public class IndexServiceImpl implements IndexService {
     public String login(LoginDTO loginDTO) {
         AuthStrategy authStrategy = LoginStrategyFactory.getAuthStrategy(loginDTO.getAuthType());
         LoginUserDTO loginUser = authStrategy.authenticate(loginDTO);
-        setLoginParams(loginUser);
+        afterLoginAuthenticate(loginUser);
         return tokenService.createToken(loginUser);
     }
 
-    private void setLoginParams(LoginUserDTO loginUser) {
+    private void afterLoginAuthenticate(LoginUserDTO loginUser) {
         // 设置设备号
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String device = request.getHeader("device");
+        String device = request.getHeader(RequestHeaderConstants.DEVICE);
         loginUser.setDevice(Integer.valueOf(device));
+        // 设置用户登陆的服务器
+        RedisUtils.set(CacheConstants.getFinalKey(CacheConstants.USER_LOGIN_SERVER, loginUser.getUserId(), device), ServerConfig.serverId.toString());
 
     }
 

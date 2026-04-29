@@ -8,7 +8,7 @@ public class ImConstant {
 
     public static final Integer MAX_OFFLINE_MESSAGE_DAYS = 30;
 
-    public static final Integer MAX_OFFLINE_CONVERSATION_DAYS = 7;
+    public static final Integer MAX_OFFLINE_CONVERSATION_DAYS = 15;
 
     public static final Integer MAX_OFFLINE_USER_FRIEND_DAYS = 30;
 

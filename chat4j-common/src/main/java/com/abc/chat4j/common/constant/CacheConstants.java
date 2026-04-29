@@ -24,6 +24,9 @@ public class CacheConstants {
     public static final String GROUP_ROOM_ID = "groupRoomId:%d";
     public static final Long GROUP_ROOM_ID_EXPIRE_TIME = 8L;
 
+    public static final String USER_LOGIN_SERVER = "userLoginServer:%d:%s";
+
+
     public static String getFinalKey(String key, Object ...values) {
         return String.format(SYSTEM_NAME + key, values);
     }

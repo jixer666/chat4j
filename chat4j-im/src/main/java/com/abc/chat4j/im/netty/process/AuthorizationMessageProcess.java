@@ -8,6 +8,7 @@ import com.abc.chat4j.im.annotation.MessageType;
 import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.im.domain.enums.ImMessageTypeEnum;
 import com.abc.chat4j.im.netty.NettyUtil;
+import com.abc.chat4j.im.netty.UserChannelCtxMap;
 import com.abc.chat4j.im.netty.process.model.AuthorizationMessage;
 import com.abc.chat4j.system.domain.vo.UserVO;
 import com.abc.chat4j.system.service.TokenService;
@@ -34,6 +35,8 @@ public class AuthorizationMessageProcess extends MessageProcess<AuthorizationMes
         LoginUserDTO loginUserDTO = tokenService.getLoginUserDTO(message.getToken());
         AssertUtils.isNotEmpty(loginUserDTO, HttpStatus.FORBIDDEN, "身份认证失败，请重新登录");
         NettyUtil.setAttr(ctx.channel(), NettyUtil.LOGIN_USER, loginUserDTO);
+
+        UserChannelCtxMap.addChannelCtx(loginUserDTO.getUserId(), message.getDevice(), ctx);
 
         ImSendInfo sendInfo = new ImSendInfo();
         sendInfo.setType(ImMessageTypeEnum.AUTHORIZATION.getType());

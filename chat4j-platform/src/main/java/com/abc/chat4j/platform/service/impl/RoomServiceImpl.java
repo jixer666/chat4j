@@ -71,8 +71,8 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             // 判断有无私聊无好友关系
             UserFriend userFriend = userFriendService.selectUserFriendByUidAndFriendId(userId,
                     uid1.equals(userId) ? uid2 : uid1);
-            AssertUtils.isTrue(Objects.isNull(userFriend) ||
-                            !StatusEnum.NORMAL.getStatus().equals(userFriend.getStatus()), "不是好友关系，无法发送消息");
+            AssertUtils.isTrue(Objects.nonNull(userFriend) &&
+                            StatusEnum.NORMAL.getStatus().equals(userFriend.getStatus()), "不是好友关系，无法发送消息");
         } else {
             // 判断是否不属于群成员
             GroupMember groupMember = groupMemberService.selectGroupMemberByRoomIdAndUid(roomId, userId);

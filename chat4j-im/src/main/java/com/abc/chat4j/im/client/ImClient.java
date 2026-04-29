@@ -15,7 +15,17 @@ public class ImClient {
     @Autowired
     private ImSender imSender;
 
+    /**
+     * 推送消息
+     */
     public <T> void sendMessage(ImSendContext<T> context) {
         imSender.sendMessage(context);
+    }
+
+    /**
+     * 是否在线
+     */
+    public boolean isOnline(Long userId, Integer device) {
+        return imSender.isOnline(userId, device);
     }
 }

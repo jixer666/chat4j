@@ -15,7 +15,7 @@ public class ConversationVO {
 
     private Long userId;
 
-    private RoomInfoVO roomInfoVO;
+    private RoomInfoVO roomInfo;
 
     private Date activeTime;
 

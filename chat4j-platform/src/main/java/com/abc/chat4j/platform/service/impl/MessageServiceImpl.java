@@ -67,10 +67,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     private void checkMessagePullDTOParams(MessagePullDTO messagePullDTO) {
         AssertUtils.isNotEmpty(messagePullDTO, "参数不能为空");
-        if (Objects.isNull(messagePullDTO.getMinUpdateTime())) {
-            // 若不存在更新时间，默认取30天内的
-            messagePullDTO.setMinUpdateTime(DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_CONVERSATION_DAYS)));
-        }
+        // 消息最大取30天内的
+        Date minUpdateTime = messagePullDTO.getMinUpdateTime();
+        Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_MESSAGE_DAYS));
+        messagePullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
+                minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
     }
 
     @Override
@@ -112,7 +113,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         message.setCommonParams();
         message.setStatus(MessageStatusEnum.PENDING.getStatus());
 
-        messageMapper.insert(message);
+//        messageMapper.insert(message);
 
         return message;
     }

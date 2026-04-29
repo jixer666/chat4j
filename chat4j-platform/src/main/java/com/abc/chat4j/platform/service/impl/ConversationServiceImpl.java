@@ -47,10 +47,11 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
 
     private void checkConversationPullDTOParams(ConversationPullDTO conversationPullDTO) {
         AssertUtils.isNotEmpty(conversationPullDTO, "参数不能为空");
-        if (Objects.isNull(conversationPullDTO.getMinUpdateTime())) {
-            // 若不存在更新时间，默认取7天内的
-            conversationPullDTO.setMinUpdateTime(DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_CONVERSATION_DAYS)));
-        }
+        // 会话最大取15天内的
+        Date minUpdateTime = conversationPullDTO.getMinUpdateTime();
+        Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_CONVERSATION_DAYS));
+        conversationPullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
+                minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
     }
 
     private List<ConversationVO> buildConversationVOList(List<Conversation> conversationList) {
@@ -60,7 +61,7 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
         return conversationList.stream().map(item -> {
             ConversationVO conversationVO = BeanUtil.copyProperties(item, ConversationVO.class);
             RoomInfoVO roomInfo = roomInfoMap.get(item.getRoomId());
-            conversationVO.setRoomInfoVO(roomInfo);
+            conversationVO.setRoomInfo(roomInfo);
             return conversationVO;
         }).collect(Collectors.toList());
     }

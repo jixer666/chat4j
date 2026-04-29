@@ -1,6 +1,9 @@
 package com.abc.chat4j.common.core.mq.redis;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.abc.chat4j.common.annotation.RedisMQListener;
+import com.abc.chat4j.common.constant.ImQueueConstant;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +11,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 基于Redis实现的MQ消息队列
@@ -43,6 +49,9 @@ public class RedisMQPullTask implements CommandLineRunner {
             String queue = annotation.queue();
             int batchSize = annotation.batchSize();
             int period = annotation.period();
+            // 获取泛型类型
+            Type superClass = consumer.getClass().getGenericSuperclass();
+            Type type = ((ParameterizedType)superClass).getActualTypeArguments()[0];
             // 执行消费
             executor.execute(new Runnable() {
                 List<Object> dataList = new ArrayList<>();
@@ -51,9 +60,15 @@ public class RedisMQPullTask implements CommandLineRunner {
                     try {
                         if (consumer.isReady()) {
                             // 拉取一个批次的数据
-                            dataList = pullBatch(queue, batchSize);
+                            dataList = pullBatch(ImQueueConstant.getQueueKey(queue), batchSize);
                             if (CollectionUtils.isNotEmpty(dataList)) {
-                                consumer.onMessage(dataList);
+                                consumer.onMessage(
+                                        // 重要：转换对象
+                                        dataList.stream().map(item -> {
+                                            JSONObject jsonObject = (JSONObject) item;
+                                            return jsonObject.toJavaObject(type);
+                                        }).collect(Collectors.toList())
+                                );
                             }
                         }
                     } catch (Exception e) {

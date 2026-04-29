@@ -1,6 +1,5 @@
 package com.abc.chat4j.im;
 
-import com.abc.chat4j.common.util.IdUtils;
 import com.abc.chat4j.im.netty.ImServer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +13,6 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class ImServerGroup implements CommandLineRunner {
-
-    public static volatile Long serverId = IdUtils.getId();
 
     private final List<ImServer> imServers;
 
