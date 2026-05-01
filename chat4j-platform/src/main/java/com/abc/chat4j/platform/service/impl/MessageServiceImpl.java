@@ -1,6 +1,7 @@
 package com.abc.chat4j.platform.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
 import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.util.AssertUtils;
@@ -15,11 +16,13 @@ import com.abc.chat4j.im.netty.process.model.ImSendUserInfo;
 import com.abc.chat4j.platform.constant.ImConstant;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
 import com.abc.chat4j.platform.domain.context.MessageQueryContext;
+import com.abc.chat4j.platform.domain.dto.MessageReadDTO;
 import com.abc.chat4j.platform.domain.entity.Message;
 import com.abc.chat4j.platform.domain.entity.MessageUserInfo;
 import com.abc.chat4j.platform.domain.enums.MessageStatusEnum;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.abc.chat4j.platform.mapper.MessageMapper;
+import com.abc.chat4j.platform.service.ConversationService;
 import com.abc.chat4j.platform.service.MessageService;
 import com.abc.chat4j.platform.service.RoomService;
 import com.abc.chat4j.system.cache.UserCache;
@@ -28,6 +31,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -48,6 +52,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Autowired
     private UserCache userCache;
+
+    @Resource
+    private ConversationService conversationService;
 
     @Override
     public List<MessageVO> selectOfflineMessageList(MessagePullDTO messagePullDTO) {
@@ -125,5 +132,30 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         ImMessageTypeEnum imMessageTypeEnum = ImMessageTypeEnum.typeOf(imSendInfo.getType());
         AssertUtils.isNotEmpty(imMessageTypeEnum, "未知消息类型");
         roomService.checkUserInRoom(SecurityUtils.getUserId(), imSendInfo.getRoomId());
+    }
+
+    @Override
+    public void readMessage(MessageReadDTO messageReadDTO) {
+        checkMessageReadDTOParams(messageReadDTO);
+        if (MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType())) {
+            // todo 暂未实现消息消息级读取
+            if (CollectionUtil.isEmpty(messageReadDTO.getMsgIdList())) {
+                return;
+            }
+
+        } else {
+            // 会话级读取
+            conversationService.updateActiveTimeByConversationId(messageReadDTO.getConversationId(), messageReadDTO.getUserId(), new Date());
+        }
+    }
+
+    private void checkMessageReadDTOParams(MessageReadDTO messageReadDTO) {
+        AssertUtils.isNotEmpty(messageReadDTO.getType(), "读取消息类型不能为空");
+        AssertUtils.isTrue(messageReadDTO.getType().equals(MessageReadDTO.READ_MESSAGE) ||
+                messageReadDTO.getType().equals(MessageReadDTO.READ_CONVERSATION), "读取消息类型不正确");
+        AssertUtils.isTrue(MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType()) &&
+                Objects.nonNull(messageReadDTO.getMsgIdList()), "读取消息列表不能为空");
+        AssertUtils.isTrue(MessageReadDTO.READ_CONVERSATION.equals(messageReadDTO.getType()) &&
+                Objects.nonNull(messageReadDTO.getConversationId()), "读取会话不能为空");
     }
 }

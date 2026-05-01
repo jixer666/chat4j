@@ -18,8 +18,11 @@ public class ImSendInfo {
 
     private Long roomId;
 
-    private Long userId;
-
     private Long tempMsgId;
+
+    // 后端设置
+    private Long userId;
+    private Long msgId;
+
 
 }

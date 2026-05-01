@@ -69,4 +69,11 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
     private List<Conversation> selectConversationList(ConversationQueryContext context) {
         return conversationMapper.selectConversationList(context);
     }
+
+    @Override
+    public void updateActiveTimeByConversationId(Long conversationId, Long userId, Date date) {
+        AssertUtils.isNotEmpty(conversationId, "会话不能为空");
+        AssertUtils.isNotEmpty(date, "更新日期不能为空");
+        conversationMapper.updateActiveTimeByConversationId(conversationId, userId, date);
+    }
 }

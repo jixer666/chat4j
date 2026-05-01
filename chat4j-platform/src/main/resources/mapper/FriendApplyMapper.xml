@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abc.chat4j.platform.mapper.FriendApplyMapper">
+
+    <resultMap type="FriendApply" id="FriendApplyResult">
+        <result property="friendApplyId"    column="friend_apply_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="friendId"    column="friend_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="status"    column="status"    />
+        <result property="ver"    column="ver"    />
+    </resultMap>
+
+    <sql id="selectFriendApplyVo">
+        select friend_apply_id, user_id, friend_id, remark, create_time, update_time, status, ver from tb_friend_apply
+    </sql>
+
+    <select id="selectFriendApply" resultMap="FriendApplyResult">
+        select * from tb_friend_apply
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="friendId != null">and friend_id = #{friendId}</if>
+            <if test="friendApplyId != null">and friend_apply_id = #{friendApplyId}</if>
+        </where>
+    </select>
+
+</mapper>

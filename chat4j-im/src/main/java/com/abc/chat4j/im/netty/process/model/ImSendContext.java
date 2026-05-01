@@ -16,7 +16,7 @@ public class ImSendContext<T> {
 
     private ChannelHandlerContext ctx;
 
-    // 消息
+    // 消息实体
     private T data;
 
     // 发送方用户

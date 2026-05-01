@@ -4,6 +4,7 @@ import com.abc.chat4j.common.domain.vo.ApiResult;
 import com.abc.chat4j.common.util.SecurityUtils;
 import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
+import com.abc.chat4j.platform.domain.dto.MessageReadDTO;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.abc.chat4j.platform.service.MessageService;
 import io.swagger.annotations.Api;
@@ -41,6 +42,14 @@ public class MessageController {
     public ApiResult<List<MessageVO>> loadOfflineList(@RequestBody MessagePullDTO messagePullDTO){
         List<MessageVO> messageList = messageService.selectOfflineMessageList(messagePullDTO);
         return ApiResult.success(messageList);
+    }
+
+    @ApiOperation("读取消息")
+    @PostMapping("/read")
+    public ApiResult<Void> readMessage(@RequestBody MessageReadDTO messageReadDTO) {
+        messageReadDTO.setUserId(SecurityUtils.getUserId());
+        messageService.readMessage(messageReadDTO);
+        return ApiResult.success();
     }
 
 }

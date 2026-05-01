@@ -4,9 +4,8 @@ import lombok.Data;
 
 /**
  * @author LiJunXi
- * @date 2026/4/26
+ * @date 2026/5/1
  */
 @Data
-public class MessagePullDTO extends PullDTO {
-
+public class FriendApplyPullDTO extends PullDTO {
 }

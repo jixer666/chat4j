@@ -25,5 +25,8 @@
             <if test="minUpdateTime != null">and update_time >= #{minUpdateTime}</if>
         </where>
     </select>
-
+    <update id="updateActiveTimeByConversationId">
+        update tb_conversation set active_time = #{activeTime} and update_time = #{activeTime}
+        where conversation_id = #{conversationId} and user_id = #{userId
+    </update>
 </mapper>

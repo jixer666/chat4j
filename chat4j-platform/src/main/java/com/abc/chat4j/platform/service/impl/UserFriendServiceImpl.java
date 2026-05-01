@@ -9,9 +9,13 @@ import com.abc.chat4j.platform.domain.context.UserFriendQueryContext;
 import com.abc.chat4j.platform.domain.dto.UserFriendPullDTO;
 import com.abc.chat4j.platform.domain.entity.UserFriend;
 import com.abc.chat4j.platform.domain.vo.ImUserVO;
+import com.abc.chat4j.platform.domain.vo.UserFriendVO;
 import com.abc.chat4j.platform.mapper.UserFriendMapper;
 import com.abc.chat4j.platform.service.UserFriendService;
 import com.abc.chat4j.system.cache.UserCache;
+import com.abc.chat4j.system.domain.dto.UserDTO;
+import com.abc.chat4j.system.domain.vo.UserVO;
+import com.abc.chat4j.system.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,9 @@ public class UserFriendServiceImpl extends ServiceImpl<UserFriendMapper, UserFri
 
     @Autowired
     private UserCache userCache;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public UserFriend selectUserFriendByUidAndFriendId(Long userId, Long friendId) {
@@ -71,5 +78,28 @@ public class UserFriendServiceImpl extends ServiceImpl<UserFriendMapper, UserFri
         Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_USER_FRIEND_DAYS));
         userFriendPullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
                 minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
+    }
+
+    @Override
+    public UserFriendVO searchUserFriend(UserDTO userDTO) {
+        checkSearchUserFriendParams(userDTO);
+        User user = userService.getUserByUsername(userDTO.getUsername());
+        if (Objects.isNull(user)) {
+            return null;
+        }
+        UserFriend userFriend = selectUserFriendByUidAndFriendId(SecurityUtils.getUserId(), user.getUserId());
+
+        UserFriendVO  userFriendVO = new UserFriendVO();
+        userFriendVO.setUserId(user.getUserId());
+        userFriendVO.setNickname(user.getNickname());
+        userFriendVO.setAvatar(user.getAvatar());
+        userFriendVO.setIsFriend(Objects.nonNull(userFriend));
+
+        return userFriendVO;
+    }
+
+    private void checkSearchUserFriendParams(UserDTO userDTO) {
+        AssertUtils.isNotEmpty(userDTO, "参数不能为空");
+        AssertUtils.isNotEmpty(userDTO.getUsername(), "账号不能为空");
     }
 }

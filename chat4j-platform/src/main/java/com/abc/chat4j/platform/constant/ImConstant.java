@@ -12,4 +12,6 @@ public class ImConstant {
 
     public static final Integer MAX_OFFLINE_USER_FRIEND_DAYS = 30;
 
+    public static final Integer MAX_OFFLINE_FRIEND_APPLY_DAYS = 15;
+
 }

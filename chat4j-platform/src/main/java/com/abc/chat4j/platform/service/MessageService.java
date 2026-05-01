@@ -2,6 +2,7 @@ package com.abc.chat4j.platform.service;
 
 import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
+import com.abc.chat4j.platform.domain.dto.MessageReadDTO;
 import com.abc.chat4j.platform.domain.entity.Message;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -16,4 +17,6 @@ public interface MessageService extends IService<Message> {
     List<MessageVO> selectOfflineMessageList(MessagePullDTO messagePullDTO);
 
     MessageVO sendMessage(ImSendInfo imSendInfo);
+
+    void readMessage(MessageReadDTO messageReadDTO);
 }
