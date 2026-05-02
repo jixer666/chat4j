@@ -8,6 +8,8 @@
         <result property="roomId"    column="room_id"    />
         <result property="activeTime"    column="active_time"    />
         <result property="lastMsgId"    column="last_msg_id"    />
+        <result property="isMuted"    column="is_muted"    />
+        <result property="isPinned"    column="is_pinned"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
         <result property="status"    column="status"    />
@@ -15,7 +17,7 @@
     </resultMap>
 
     <sql id="selectConversationVo">
-        select conversation_id, user_id, room_id, active_time, last_msg_id, create_time, update_time, status, ver from tb_conversation
+        select conversation_id, user_id, room_id, active_time, last_msg_id, is_muted, is_pinned, create_time, update_time, status, ver from tb_conversation
     </sql>
 
     <select id="selectConversationList" resultMap="ConversationResult">
@@ -29,4 +31,40 @@
         update tb_conversation set active_time = #{activeTime} and update_time = #{activeTime}
         where conversation_id = #{conversationId} and user_id = #{userId
     </update>
+    <select id="selectConversationBydUidListAndRoomId" resultMap="ConversationResult">
+        select * from tb_conversation where room_id = #{roomId} and user_id in
+        <foreach collection="userIdList" item="item" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+    </select>
+    <insert id="insertConversationBatch" parameterType="list">
+        insert into tb_conversation (
+        conversation_id,
+        user_id,
+        room_id,
+        active_time,
+        last_msg_id,
+        is_muted,
+        is_pinned,
+        create_time,
+        update_time,
+        status,
+        ver
+        ) values
+        <foreach collection="conversationList" item="item" separator=",">
+            (
+            #{item.conversationId},
+            #{item.userId},
+            #{item.roomId},
+            #{item.activeTime},
+            #{item.lastMsgId},
+            #{item.isMuted},
+            #{item.isPinned},
+            #{item.createTime},
+            #{item.updateTime},
+            #{item.status},
+            #{item.ver}
+            )
+        </foreach>
+    </insert>
 </mapper>

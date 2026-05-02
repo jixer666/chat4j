@@ -7,19 +7,23 @@ import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.IdUtils;
 import com.abc.chat4j.common.util.SecurityUtils;
+import com.abc.chat4j.common.util.StringUtils;
 import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.im.domain.enums.ImMessageTypeEnum;
 import com.abc.chat4j.im.factory.MessageProcessFactory;
 import com.abc.chat4j.im.netty.process.MessageProcess;
 import com.abc.chat4j.im.netty.process.model.ImSendContext;
 import com.abc.chat4j.im.netty.process.model.ImSendUserInfo;
+import com.abc.chat4j.im.netty.process.model.TextMessage;
 import com.abc.chat4j.platform.constant.ImConstant;
+import com.abc.chat4j.platform.domain.dto.ConversationPullDTO;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
 import com.abc.chat4j.platform.domain.context.MessageQueryContext;
 import com.abc.chat4j.platform.domain.dto.MessageReadDTO;
 import com.abc.chat4j.platform.domain.entity.Message;
 import com.abc.chat4j.platform.domain.entity.MessageUserInfo;
 import com.abc.chat4j.platform.domain.enums.MessageStatusEnum;
+import com.abc.chat4j.platform.domain.vo.ConversationVO;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.abc.chat4j.platform.mapper.MessageMapper;
 import com.abc.chat4j.platform.service.ConversationService;
@@ -32,9 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,9 +62,15 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     public List<MessageVO> selectOfflineMessageList(MessagePullDTO messagePullDTO) {
         checkMessagePullDTOParams(messagePullDTO);
 
+        // 查询会话
+        ConversationPullDTO conversationPullDTO = new ConversationPullDTO();
+        conversationPullDTO.setMinUpdateTime(messagePullDTO.getMinUpdateTime());
+        List<ConversationVO> conversationVOList = conversationService.selectConversationList(conversationPullDTO);
+        Set<Long> roomIdSet = conversationVOList.stream().map(item -> item.getRoomInfo().getRoomId()).collect(Collectors.toSet());
+        // 查询会话中的消息
         MessageQueryContext context = new MessageQueryContext();
-        context.setUserId(SecurityUtils.getUserId());
         context.setMinUpdateTime(messagePullDTO.getMinUpdateTime());
+        context.setRoomIdList(new ArrayList<>(roomIdSet));
         List<Message> messageList = selectMessage(context);
 
         return BeanUtil.copyToList(messageList, MessageVO.class);
@@ -116,11 +124,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         message.setRoomId(imSendInfo.getRoomId());
         message.setTempMsgId(imSendInfo.getTempMsgId());
         User user = userCache.get(imSendInfo.getUserId());
-        message.setUserInfo(new MessageUserInfo(user.getNickname(), user.getAvatar()));
+        message.setUserInfo(new MessageUserInfo(user.getUserId(), user.getUsername(), user.getNickname(), user.getAvatar()));
         message.setCommonParams();
         message.setStatus(MessageStatusEnum.PENDING.getStatus());
 
-//        messageMapper.insert(message);
+        messageMapper.insert(message);
 
         return message;
     }
@@ -131,7 +139,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         AssertUtils.isNotEmpty(imSendInfo.getType(), "消息类型不能为空");
         ImMessageTypeEnum imMessageTypeEnum = ImMessageTypeEnum.typeOf(imSendInfo.getType());
         AssertUtils.isNotEmpty(imMessageTypeEnum, "未知消息类型");
-        roomService.checkUserInRoom(SecurityUtils.getUserId(), imSendInfo.getRoomId());
+        roomService.checkUserInRoom(imSendInfo.getUserId(), imSendInfo.getRoomId());
     }
 
     @Override
@@ -157,5 +165,22 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 Objects.nonNull(messageReadDTO.getMsgIdList()), "读取消息列表不能为空");
         AssertUtils.isTrue(MessageReadDTO.READ_CONVERSATION.equals(messageReadDTO.getType()) &&
                 Objects.nonNull(messageReadDTO.getConversationId()), "读取会话不能为空");
+    }
+
+    @Override
+    public void sendCreateDefaultMessage(Long userId, Long roomId, String message) {
+        AssertUtils.isNotEmpty(userId, "用户ID不能为空");
+        AssertUtils.isNotEmpty(roomId, "房间ID不能为空");
+
+        ImSendInfo imSendInfo = new ImSendInfo();
+        imSendInfo.setRoomId(roomId);
+        imSendInfo.setUserId(userId);
+        imSendInfo.setType(ImMessageTypeEnum.TEXT.getType());
+        imSendInfo.setTempMsgId(IdUtils.getId());
+        TextMessage textMessage = new TextMessage();
+        textMessage.setText(StringUtils.isEmpty(message) ? ImConstant.DEFAULT_CONVERSATION_MESSAGE : message);
+        imSendInfo.setData(textMessage);
+
+        sendMessage(imSendInfo);
     }
 }

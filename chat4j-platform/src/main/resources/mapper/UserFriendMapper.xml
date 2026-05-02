@@ -20,6 +20,13 @@
         select * from tb_user_friend
         where user_id = #{userId} and friend_id = #{friendId}
     </select>
+    <select id="selectBatchByUidAndFriendId" resultMap="UserFriendResult">
+        select * from tb_user_friend
+        where
+        <foreach collection="userFriendList" item="item" open="(" separator=") or (" close=")">
+            user_id = #{item.userId} and friend_id = #{item.friendId}
+        </foreach>
+    </select>
     <select id="selectUserFriendList" resultMap="UserFriendResult">
         select * from tb_user_friend
         <where>
@@ -27,5 +34,15 @@
             <if test="minUpdateTime != null">and update_time >= #{minUpdateTime}</if>
         </where>
     </select>
+    <insert id="insertBatch" parameterType="list">
+        INSERT INTO tb_user_friend (
+        user_friend_id, user_id, friend_id, remark,
+        create_time, update_time, status, ver
+        ) VALUES
+        <foreach collection="userFriendList" item="item" separator=",">
+            (#{item.userFriendId}, #{item.userId}, #{item.friendId}, #{item.remark},
+            #{item.createTime}, #{item.updateTime}, #{item.status}, #{item.ver})
+        </foreach>
+    </insert>
 
 </mapper>

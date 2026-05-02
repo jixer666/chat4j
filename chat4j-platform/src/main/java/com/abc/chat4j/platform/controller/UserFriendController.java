@@ -1,6 +1,7 @@
 package com.abc.chat4j.platform.controller;
 
 import com.abc.chat4j.common.domain.vo.ApiResult;
+import com.abc.chat4j.platform.domain.dto.FriendApplyPullDTO;
 import com.abc.chat4j.platform.domain.dto.UserFriendPullDTO;
 import com.abc.chat4j.platform.domain.vo.ImUserVO;
 import com.abc.chat4j.platform.domain.vo.UserFriendVO;
@@ -33,8 +34,8 @@ public class UserFriendController {
 
     @ApiOperation("拉取离线好友列表")
     @PostMapping("/loadOfflineList")
-    public ApiResult<List<ImUserVO>> loadOfflineList(@RequestBody UserFriendPullDTO userFriendPullDTO) {
-        List<ImUserVO> userList = userFriendService.selectOfflineUserFriendList(userFriendPullDTO);
+    public ApiResult<List<ImUserVO>> loadOfflineList(@RequestBody FriendApplyPullDTO friendApplyPullDTO) {
+        List<ImUserVO> userList = userFriendService.selectOfflineUserFriendList(friendApplyPullDTO);
         return ApiResult.success(userList);
     }
 

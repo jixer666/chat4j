@@ -19,4 +19,6 @@ public interface MessageService extends IService<Message> {
     MessageVO sendMessage(ImSendInfo imSendInfo);
 
     void readMessage(MessageReadDTO messageReadDTO);
+
+    void sendCreateDefaultMessage(Long userId, Long roomId, String message);
 }

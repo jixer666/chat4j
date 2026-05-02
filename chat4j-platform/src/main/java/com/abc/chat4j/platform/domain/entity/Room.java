@@ -16,8 +16,4 @@ public class Room extends BaseEntity {
 
     private Integer type;
 
-    private Date activeTime;
-
-    private Long lastMsgId;
-
 }

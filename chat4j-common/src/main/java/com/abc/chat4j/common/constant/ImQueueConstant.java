@@ -6,6 +6,8 @@ public class ImQueueConstant {
 
     public static final String MESSAGE_QUEUE = "messageQueue";
 
+    public static final String FRIEND_APPLY_OPERATION_QUEUE = "friendApplyOperationQueue";
+
 
     public static String getQueueKey(String queue) {
         return CacheConstants.getFinalKey(String.format("%s:%d", queue, ServerConfig.serverId));

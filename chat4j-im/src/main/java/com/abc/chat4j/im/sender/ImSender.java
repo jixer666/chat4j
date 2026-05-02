@@ -41,7 +41,7 @@ public class ImSender {
                     continue;
                 }
                 // 在线用户进行推送到对应的服务器
-                String queueKey = ImQueueConstant.getQueueKey(ImQueueConstant.MESSAGE_QUEUE, serverId);
+                String queueKey = ImQueueConstant.getQueueKey(context.getQueue(), serverId);
                 // 构造接收上下文
                 ImReceiveContext receiveContext =  new ImReceiveContext();
                 receiveContext.setData(context.getData());

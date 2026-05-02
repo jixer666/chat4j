@@ -195,6 +195,13 @@ public class CommonConstants {
     public static final String DEFAULT_AVATAR = "";
 
     /**
+     * 群聊信息默认值
+     */
+    public static final String DEFAULT_GROUP_NAME = "群聊";
+    public static final String DEFAULT_GROUP_AVATAR = "https://ui-avatars.com/api/?name=群聊&background=0081ff&color=ffffff&rounded=true";
+
+
+    /**
      * 系统名称
      */
     public static final String SYSTEM_NAME = "Chat4j";

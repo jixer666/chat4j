@@ -13,5 +13,9 @@ public interface UserFriendMapper extends BaseMapper<UserFriend> {
     UserFriend selectByUidAndFriendId(@Param("userId") Long userId,
                                       @Param("friendId") Long friendId);
 
+    List<UserFriend> selectBatchByUidAndFriendId(@Param("userFriendList") List<UserFriend> userFriendList);
+
     List<UserFriend> selectUserFriendList(UserFriendQueryContext context);
+
+    void insertBatch(@Param("userFriendList") List<UserFriend> userFriendList);
 }

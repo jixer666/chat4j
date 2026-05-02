@@ -26,5 +26,8 @@
             #{item}
         </foreach>
     </select>
+    <select id="selectByRoomKey" resultMap="PrivateRoomResult">
+        select * from tb_private_room where room_key = #{roomKey}
+    </select>
 
 </mapper>

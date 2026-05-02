@@ -9,5 +9,6 @@ public class RoomInfoVO {
 
     private Integer type;
 
+    // 单聊/群聊具体的数据
     private Object data;
 }

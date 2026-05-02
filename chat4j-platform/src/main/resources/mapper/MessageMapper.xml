@@ -26,6 +26,12 @@
         <where>
             <if test="userId != null">and user_id = #{userId}</if>
             <if test="minUpdateTime != null">and update_time >= #{minUpdateTime}</if>
+            <if test="roomIdList != null and roomIdList.size() > 0">
+                and room_id in
+                <foreach collection="roomIdList" item="roomId" separator="," open="(" close=")">
+                    #{roomId}
+                </foreach>
+            </if>
         </where>
     </select>
 

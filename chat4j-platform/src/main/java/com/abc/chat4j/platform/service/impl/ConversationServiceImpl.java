@@ -1,9 +1,13 @@
 package com.abc.chat4j.platform.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import com.abc.chat4j.common.constant.CommonConstants;
 import com.abc.chat4j.common.util.AssertUtils;
+import com.abc.chat4j.common.util.IdUtils;
 import com.abc.chat4j.common.util.SecurityUtils;
 import com.abc.chat4j.platform.constant.ImConstant;
+import com.abc.chat4j.platform.domain.context.ConversationCreateContext;
 import com.abc.chat4j.platform.domain.context.ConversationQueryContext;
 import com.abc.chat4j.platform.domain.dto.ConversationPullDTO;
 import com.abc.chat4j.platform.domain.entity.Conversation;
@@ -17,10 +21,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -75,5 +76,68 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
         AssertUtils.isNotEmpty(conversationId, "会话不能为空");
         AssertUtils.isNotEmpty(date, "更新日期不能为空");
         conversationMapper.updateActiveTimeByConversationId(conversationId, userId, date);
+    }
+
+    @Override
+    public List<Conversation> createConversation(ConversationCreateContext conversationContext) {
+        checkCreateConversationParams(conversationContext);
+
+        List<Conversation> conversationList = selectConversationBydUidListAndRoomId(conversationContext.getUserIdList(), conversationContext.getRoomId());
+        Map<String, Conversation> conversationMap = conversationList.stream().collect(Collectors.toMap(conversation -> conversation.getUserId() + "_" + conversation.getRoomId(), Function.identity()));
+
+        List<Conversation> insertConversationList = new ArrayList<>();
+        List<Conversation> existConversationList = new ArrayList<>();
+        for (Long useId : conversationContext.getUserIdList()) {
+            // 是否已经存在了会话，存在就不再保存了
+            String key = useId + "_" + conversationContext.getRoomId();
+            boolean isContain = conversationMap.containsKey(key);
+            if (isContain) {
+                existConversationList.add(conversationMap.get(key));
+                continue;
+            }
+
+            Conversation conversation = new  Conversation();
+            conversation.setConversationId(IdUtils.getId());
+            conversation.setRoomId(conversationContext.getRoomId());
+            conversation.setUserId(useId);
+            conversation.setIsMuted(CommonConstants.YES);
+            conversation.setIsPinned(CommonConstants.YES);
+            conversation.setCommonParams();
+
+            insertConversationList.add(conversation);
+        }
+
+        conversationMapper.insertConversationBatch(insertConversationList);
+
+        existConversationList.addAll(insertConversationList);
+        return existConversationList;
+    }
+
+    @Override
+    public List<Conversation> selectConversationBydUidListAndRoomId(List<Long> userIdList, Long roomId) {
+        AssertUtils.isNotEmpty(roomId, "房间ID不能为空");
+        if (CollectionUtil.isEmpty(userIdList)) {
+            return new ArrayList<>();
+        }
+
+        return conversationMapper.selectConversationBydUidListAndRoomId(userIdList, roomId);
+    }
+
+    @Override
+    public Conversation selectConversationBydUidAndRoomId(Long userId, Long roomId) {
+        AssertUtils.isNotEmpty(userId, "用户ID不能为空");
+        AssertUtils.isNotEmpty(roomId, "房间ID不能为空");
+
+        List<Conversation> conversationList = selectConversationBydUidListAndRoomId(Arrays.asList(userId), roomId);
+        if (CollectionUtil.isEmpty(conversationList)) {
+            return null;
+        }
+        return conversationList.get(0);
+    }
+
+    private void checkCreateConversationParams(ConversationCreateContext conversationContext) {
+        AssertUtils.isNotEmpty(conversationContext, "参数不能为空");
+        AssertUtils.isNotEmpty(conversationContext.getRoomId(), "房间ID不能为空");
+        AssertUtils.isTrue(CollectionUtil.isNotEmpty(conversationContext.getUserIdList()), "用户ID列表不能为空");
     }
 }

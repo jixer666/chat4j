@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @TableName("tb_private_room")
-public class PrivateRoom extends BaseEntity {
+public class PrivateRoom {
 
     @TableId
     private Long privateRoomId;

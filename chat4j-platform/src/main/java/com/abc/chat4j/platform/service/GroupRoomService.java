@@ -1,5 +1,6 @@
 package com.abc.chat4j.platform.service;
 
+import com.abc.chat4j.platform.domain.context.RoomCreateContext;
 import com.abc.chat4j.platform.domain.entity.GroupRoom;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -8,4 +9,6 @@ import java.util.List;
 public interface GroupRoomService extends IService<GroupRoom> {
 
     List<GroupRoom> selectGroupRoomListByRoomIds(List<Long> roomIds);
+
+    GroupRoom createGroupRoom(RoomCreateContext context);
 }

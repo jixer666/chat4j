@@ -12,8 +12,8 @@ import lombok.Getter;
 public enum FriendApplyStatusEnum {
 
     PENDING(1, "待处理"),
-    AGREE(2, "同意"),
-    DISAGREE(3, "拒绝");
+    ACCEPT(2, "同意"),
+    REJECT(3, "拒绝");
 
     private Integer status;
     private String desc;

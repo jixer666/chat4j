@@ -5,8 +5,6 @@
     <resultMap type="Room" id="RoomResult">
         <result property="roomId"    column="room_id"    />
         <result property="type"    column="type"    />
-        <result property="activeTime"    column="active_time"    />
-        <result property="lastMsgId"    column="last_msg_id"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
         <result property="status"    column="status"    />
@@ -14,7 +12,7 @@
     </resultMap>
 
     <sql id="selectRoomVo">
-        select room_id, type, active_time, last_msg_id, create_time, update_time, status, ver from tb_room
+        select room_id, type, create_time, update_time, status, ver from tb_room
     </sql>
 
 </mapper>

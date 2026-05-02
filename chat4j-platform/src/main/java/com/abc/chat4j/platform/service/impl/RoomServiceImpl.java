@@ -2,10 +2,13 @@ package com.abc.chat4j.platform.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.abc.chat4j.common.domain.enums.StatusEnum;
+import com.abc.chat4j.common.exception.GlobalException;
 import com.abc.chat4j.common.util.AssertUtils;
+import com.abc.chat4j.common.util.IdUtils;
 import com.abc.chat4j.platform.cache.GroupRoomCache;
 import com.abc.chat4j.platform.cache.PrivateRoomCache;
 import com.abc.chat4j.platform.cache.RoomCache;
+import com.abc.chat4j.platform.domain.context.RoomCreateContext;
 import com.abc.chat4j.platform.domain.entity.*;
 import com.abc.chat4j.platform.domain.enums.RoomTypeEnum;
 import com.abc.chat4j.platform.domain.vo.RoomInfoVO;
@@ -67,7 +70,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
             PrivateRoom privateRoom = privateRoomService.selectPrivateRoomByRoomId(roomId);
             // 判断私聊房间用户是否在双方访问内
             Long uid1 = privateRoom.getUserId(), uid2 = privateRoom.getFriendId();
-            AssertUtils.isTrue(uid1.equals(userId) || uid2.equals(roomId), "不在房间，无法聊天");
+            AssertUtils.isTrue(uid1.equals(userId) || uid2.equals(userId), "不在房间，无法聊天");
             // 判断有无私聊无好友关系
             UserFriend userFriend = userFriendService.selectUserFriendByUidAndFriendId(userId,
                     uid1.equals(userId) ? uid2 : uid1);
@@ -130,5 +133,50 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         }
 
         return userIdList;
+    }
+
+    @Override
+    public RoomInfoVO createRoom(RoomCreateContext context) {
+        checkCreateRoomParams(context);
+
+        RoomInfoVO roomInfoVO = new RoomInfoVO();
+        roomInfoVO.setType(context.getType());
+        Room room = buildRoomByType(context.getType());
+        roomInfoVO.setRoomId(room.getRoomId());
+        context.setRoomId(room.getRoomId());
+
+        if (RoomTypeEnum.PRIVATE.getType().equals(context.getType())) {
+            PrivateRoom privateRoom = privateRoomService.createPrivateRoom(context);
+            roomInfoVO.setData(privateRoom);
+        } else if (RoomTypeEnum.GROUP.getType().equals(context.getType())) {
+            GroupRoom groupRoom = groupRoomService.createGroupRoom(context);
+            roomInfoVO.setData(groupRoom);
+        } else {
+            throw new GlobalException("未知房间类型");
+        }
+
+        // 若不相等说明已经保存过房间了，无需保存
+        // 此处只会在私聊流程中进行校验
+        if (room.getRoomId().equals(context.getRoomId())) {
+            roomMapper.insert(room);
+        } else {
+            roomInfoVO.setRoomId(context.getRoomId());
+        }
+
+        return roomInfoVO;
+    }
+
+    private Room buildRoomByType(Integer type) {
+        Room room = new Room();
+        room.setType(type);
+        room.setRoomId(IdUtils.getId());
+        room.setCommonParams();
+
+        return room;
+    }
+
+    private void checkCreateRoomParams(RoomCreateContext context) {
+        AssertUtils.isNotEmpty(context, "创建房间参数不能为空");
+        AssertUtils.isNotEmpty(context.getType(), "房间类型不能为空");
     }
 }

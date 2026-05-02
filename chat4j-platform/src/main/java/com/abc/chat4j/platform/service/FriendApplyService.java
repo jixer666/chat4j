@@ -15,4 +15,7 @@ public interface FriendApplyService extends IService<FriendApply> {
     FriendApply selectFriendApplyByUserIdAndFriendId(Long userId, Long friendId);
 
     List<FriendApplyVO> selectOfflineFriendApplyList(FriendApplyPullDTO friendApplyPullDTO);
+
+    FriendApplyVO operationFriendApply(FriendApplyDTO friendApplyDTO);
+
 }

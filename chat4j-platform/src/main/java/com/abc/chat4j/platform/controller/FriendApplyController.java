@@ -39,5 +39,11 @@ public class FriendApplyController {
         return ApiResult.success(friendApplyList);
     }
 
+    @ApiOperation("同意/拒绝好友审核")
+    @PostMapping("/operation")
+    public ApiResult<FriendApplyVO> operationFriendApply(@RequestBody FriendApplyDTO friendApplyDTO) {
+        FriendApplyVO friendApply = friendApplyService.operationFriendApply(friendApplyDTO);
+        return ApiResult.success(friendApply);
+    }
 
 }

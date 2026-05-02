@@ -12,4 +12,6 @@ public interface PrivateRoomMapper extends BaseMapper<PrivateRoom> {
     PrivateRoom selectByRoomId(Long roomId);
 
     List<PrivateRoom> selectPrivateRoomListByRoomIds(@Param("roomIds") List<Long> roomIds);
+
+    PrivateRoom selectByRoomKey(String roomKey);
 }
