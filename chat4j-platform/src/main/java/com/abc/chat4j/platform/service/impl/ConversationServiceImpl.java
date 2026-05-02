@@ -52,7 +52,7 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
         Date minUpdateTime = conversationPullDTO.getMinUpdateTime();
         Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_CONVERSATION_DAYS));
         conversationPullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
-                minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
+                minUpdateTime.before(maxMinUpdateTime) ? maxMinUpdateTime : minUpdateTime);
     }
 
     private List<ConversationVO> buildConversationVOList(List<Conversation> conversationList) {

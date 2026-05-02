@@ -86,7 +86,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         Date minUpdateTime = messagePullDTO.getMinUpdateTime();
         Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_MESSAGE_DAYS));
         messagePullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
-                minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
+                minUpdateTime.before(maxMinUpdateTime) ? maxMinUpdateTime : minUpdateTime);
     }
 
     @Override

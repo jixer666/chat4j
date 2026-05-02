@@ -82,7 +82,7 @@ public class UserFriendServiceImpl extends ServiceImpl<UserFriendMapper, UserFri
         Date minUpdateTime = friendApplyPullDTO.getMinUpdateTime();
         Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_USER_FRIEND_DAYS));
         friendApplyPullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
-                minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
+                minUpdateTime.before(maxMinUpdateTime) ? maxMinUpdateTime : minUpdateTime);
     }
 
     @Override

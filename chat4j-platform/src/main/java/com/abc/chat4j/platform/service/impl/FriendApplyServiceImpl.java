@@ -168,7 +168,7 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         Date minUpdateTime = friendApplyPullDTO.getMinUpdateTime();
         Date maxMinUpdateTime = DateUtils.addDays(new Date(), Math.toIntExact(-ImConstant.MAX_OFFLINE_FRIEND_APPLY_DAYS));
         friendApplyPullDTO.setMinUpdateTime(Objects.isNull(minUpdateTime) ? maxMinUpdateTime :
-                minUpdateTime.before(maxMinUpdateTime) ? minUpdateTime : maxMinUpdateTime);
+                minUpdateTime.before(maxMinUpdateTime) ? maxMinUpdateTime : minUpdateTime);
     }
 
     @Override
