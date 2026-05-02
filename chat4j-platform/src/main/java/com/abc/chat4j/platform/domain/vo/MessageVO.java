@@ -1,6 +1,6 @@
 package com.abc.chat4j.platform.domain.vo;
 
-import com.abc.chat4j.platform.domain.entity.MessageUserInfo;
+import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,6 +13,8 @@ import java.util.Date;
 public class MessageVO {
 
     private Long msgId;
+
+    private Long tempMsgId;
 
     private Long userId;
 

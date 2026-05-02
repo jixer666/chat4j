@@ -1,4 +1,4 @@
-package com.abc.chat4j.platform.domain.entity;
+package com.abc.chat4j.im.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

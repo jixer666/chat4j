@@ -36,12 +36,14 @@ public class MessageListener extends RedisMQConsumer<ImReceiveContext> {
             }
             Message message = BeanUtil.copyProperties(messageImReceiveContext.getData(), Message.class);
             ImSendInfo imSendInfo = new ImSendInfo();
-            imSendInfo.setData(message.getContent());
+            imSendInfo.setContent(message.getContent());
             imSendInfo.setType(message.getType());
             imSendInfo.setMsgId(message.getMsgId());
             imSendInfo.setRoomId(message.getRoomId());
             imSendInfo.setTempMsgId(message.getTempMsgId());
             imSendInfo.setUserId(message.getUserId());
+            imSendInfo.setUserInfo(message.getUserInfo());
+            imSendInfo.setCreateTime(message.getCreateTime());
             channelCtx.channel().writeAndFlush(imSendInfo);
         }
         log.info("【messageQueue】【消费消息】结束");

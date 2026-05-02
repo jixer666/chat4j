@@ -40,7 +40,7 @@ public class AuthorizationMessageProcess extends MessageProcess<AuthorizationMes
 
         ImSendInfo sendInfo = new ImSendInfo();
         sendInfo.setType(ImMessageTypeEnum.AUTHORIZATION.getType());
-        sendInfo.setData(BeanUtil.copyProperties(loginUserDTO.getUser(), UserVO.class));
+        sendInfo.setContent(BeanUtil.copyProperties(loginUserDTO.getUser(), UserVO.class));
         ctx.channel().writeAndFlush(sendInfo);
     }
 

@@ -1,6 +1,9 @@
 package com.abc.chat4j.im.domain.dto;
 
+import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author LiJunXi
@@ -14,7 +17,7 @@ public class ImSendInfo {
      */
     private Integer type;
 
-    private Object data;
+    private Object content;
 
     private Long roomId;
 
@@ -23,6 +26,8 @@ public class ImSendInfo {
     // 后端设置
     private Long userId;
     private Long msgId;
+    private MessageUserInfo userInfo;
+    private Date createTime;
 
 
 }

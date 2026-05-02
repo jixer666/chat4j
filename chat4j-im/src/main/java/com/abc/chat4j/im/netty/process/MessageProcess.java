@@ -75,7 +75,7 @@ public abstract class MessageProcess<T> {
     private void sendErrorMessage(ChannelHandlerContext ctx, Integer code, String msg) {
         ImSendInfo sendInfo = new ImSendInfo();
         sendInfo.setType(ImMessageTypeEnum.ERROR.getType());
-        sendInfo.setData(new ErrorMessage(code, msg));
+        sendInfo.setContent(new ErrorMessage(code, msg));
         sendMessage(ctx, sendInfo);
     }
 

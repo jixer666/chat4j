@@ -1,9 +1,7 @@
 package com.abc.chat4j.platform.domain.entity.typehandler;
 
 import cn.hutool.json.JSONUtil;
-import com.abc.chat4j.platform.domain.entity.MessageUserInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;

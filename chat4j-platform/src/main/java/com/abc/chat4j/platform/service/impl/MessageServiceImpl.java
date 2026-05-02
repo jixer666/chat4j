@@ -21,7 +21,7 @@ import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
 import com.abc.chat4j.platform.domain.context.MessageQueryContext;
 import com.abc.chat4j.platform.domain.dto.MessageReadDTO;
 import com.abc.chat4j.platform.domain.entity.Message;
-import com.abc.chat4j.platform.domain.entity.MessageUserInfo;
+import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import com.abc.chat4j.platform.domain.enums.MessageStatusEnum;
 import com.abc.chat4j.platform.domain.vo.ConversationVO;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
@@ -94,7 +94,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         checkSendMessageParams(imSendInfo);
 
         MessageProcess<?> messageProcess = MessageProcessFactory.getService(imSendInfo.getType());
-        messageProcess.checkMessageContent(imSendInfo.getData());
+        messageProcess.checkMessageContent(imSendInfo.getContent());
 
         Message message = saveSendMessage(imSendInfo);
 
@@ -120,7 +120,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         message.setMsgId(IdUtils.getId());
         message.setType(imSendInfo.getType());
         message.setUserId(SecurityUtils.getUserId());
-        message.setContent(JSONUtil.toJsonStr(imSendInfo.getData()));
+        message.setContent(JSONUtil.toJsonStr(imSendInfo.getContent()));
         message.setRoomId(imSendInfo.getRoomId());
         message.setTempMsgId(imSendInfo.getTempMsgId());
         User user = userCache.get(imSendInfo.getUserId());
@@ -179,7 +179,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         imSendInfo.setTempMsgId(IdUtils.getId());
         TextMessage textMessage = new TextMessage();
         textMessage.setText(StringUtils.isEmpty(message) ? ImConstant.DEFAULT_CONVERSATION_MESSAGE : message);
-        imSendInfo.setData(textMessage);
+        imSendInfo.setContent(textMessage);
 
         sendMessage(imSendInfo);
     }

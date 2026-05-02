@@ -37,7 +37,7 @@ public class FriendApplyListener extends RedisMQConsumer<ImReceiveContext> {
             }
             FriendApplyMessage friendApplyMessage = BeanUtil.copyProperties(messageImReceiveContext.getData(), FriendApplyMessage.class);
             ImSendInfo imSendInfo = new ImSendInfo();
-            imSendInfo.setData(friendApplyMessage);
+            imSendInfo.setContent(friendApplyMessage);
             imSendInfo.setType(ImMessageTypeEnum.FRIEND_APPLY.getType());
             imSendInfo.setUserId(friendApplyMessage.getUserId());
             channelCtx.channel().writeAndFlush(imSendInfo);

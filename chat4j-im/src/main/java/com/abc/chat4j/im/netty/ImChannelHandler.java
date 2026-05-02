@@ -25,7 +25,7 @@ public class ImChannelHandler extends SimpleChannelInboundHandler<ImSendInfo> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ImSendInfo sendInfo) {
         MessageProcess<?> messageProcess = MessageProcessFactory.getService(sendInfo.getType());
-        ImSendContext<Object> imSendContext = new ImSendContext<>(ctx, sendInfo.getData());
+        ImSendContext<Object> imSendContext = new ImSendContext<>(ctx, sendInfo.getContent());
         messageProcess.process(imSendContext);
     }
 

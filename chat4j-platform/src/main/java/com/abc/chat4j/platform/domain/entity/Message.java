@@ -1,6 +1,7 @@
 package com.abc.chat4j.platform.domain.entity;
 
 import com.abc.chat4j.common.domain.entity.BaseEntity;
+import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import com.abc.chat4j.platform.domain.entity.typehandler.MessageUserInfoTypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
