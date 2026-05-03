@@ -4,17 +4,17 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.abc.chat4j.common.constant.CommonConstants;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.IdUtils;
+import com.abc.chat4j.platform.domain.context.GroupMemberCreateContext;
 import com.abc.chat4j.platform.domain.context.RoomCreateContext;
-import com.abc.chat4j.platform.domain.entity.GroupMember;
 import com.abc.chat4j.platform.domain.entity.GroupRoom;
 import com.abc.chat4j.platform.mapper.GroupRoomMapper;
+import com.abc.chat4j.platform.service.GroupMemberService;
 import com.abc.chat4j.platform.service.GroupRoomService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -22,6 +22,9 @@ public class GroupRoomServiceImpl extends ServiceImpl<GroupRoomMapper, GroupRoom
 
     @Autowired
     private GroupRoomMapper groupRoomMapper;
+
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Override
     public List<GroupRoom> selectGroupRoomListByRoomIds(List<Long> roomIds) {
@@ -43,6 +46,15 @@ public class GroupRoomServiceImpl extends ServiceImpl<GroupRoomMapper, GroupRoom
         groupRoom.setAvatar(CommonConstants.DEFAULT_GROUP_AVATAR);
 
         groupRoomMapper.insert(groupRoom);
+
+        if (CollectionUtil.isNotEmpty(context.getUserIdList())) {
+            GroupMemberCreateContext groupMemberCreateContext = new GroupMemberCreateContext();
+            context.getUserIdList().add(context.getUserId());
+            groupMemberCreateContext.setUserIdList(context.getUserIdList());
+            groupMemberCreateContext.setRoomId(context.getRoomId());
+            groupMemberCreateContext.setGroupRoomId(groupRoom.getGroupRoomId());
+            groupMemberService.saveGroupMemberBatch(groupMemberCreateContext);
+        }
 
         return groupRoom;
     }

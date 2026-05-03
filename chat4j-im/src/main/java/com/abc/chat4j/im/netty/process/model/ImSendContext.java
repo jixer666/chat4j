@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
+/** 消息发送上下文
  * @author LiJunXi
  * @date 2026/4/26
  */

@@ -1,6 +1,7 @@
 package com.abc.chat4j.platform.service;
 
 import com.abc.chat4j.platform.domain.context.RoomCreateContext;
+import com.abc.chat4j.platform.domain.dto.StartGroupChatDTO;
 import com.abc.chat4j.platform.domain.entity.Room;
 import com.abc.chat4j.platform.domain.vo.RoomInfoVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -19,4 +20,6 @@ public interface RoomService extends IService<Room> {
     List<Long> getRoomMemberListByRoomId(Long roomId);
 
     RoomInfoVO createRoom(RoomCreateContext context);
+
+    RoomInfoVO startGroupChat(StartGroupChatDTO startGroupChatDTO);
 }

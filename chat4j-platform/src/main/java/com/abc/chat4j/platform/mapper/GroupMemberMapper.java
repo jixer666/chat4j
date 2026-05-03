@@ -13,4 +13,9 @@ public interface GroupMemberMapper extends BaseMapper<GroupMember> {
                                       @Param("userId") Long userId);
 
     List<GroupMember> selectGroupMemberByRoomId(Long roomId);
+
+    void insertGroupMemberBatch(@Param("groupMemberList") List<GroupMember> groupMemberList);
+
+    List<GroupMember> selectGroupMemberByRoomIdAndUserIdList(@Param("roomId") Long roomId,
+                                                @Param("userIdList") List<Long> userIdList);
 }

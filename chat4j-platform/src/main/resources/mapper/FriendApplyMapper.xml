@@ -23,6 +23,7 @@
             <if test="userId != null">and user_id = #{userId}</if>
             <if test="friendId != null">and friend_id = #{friendId}</if>
             <if test="friendApplyId != null">and friend_apply_id = #{friendApplyId}</if>
+            <if test="minUpdateTime != null">and update_time >= #{minUpdateTime}</if>
         </where>
     </select>
 

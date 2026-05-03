@@ -21,4 +21,6 @@ public interface MessageService extends IService<Message> {
     void readMessage(MessageReadDTO messageReadDTO);
 
     void sendCreateDefaultMessage(Long userId, Long roomId, String message);
+
+    void updateStatusByMsgIdList(Integer status, List<Long> msgIdList);
 }

@@ -34,5 +34,12 @@
             </if>
         </where>
     </select>
+    <update id="updateStatusByMsgIdList">
+        update tb_message set status = #{status} where msg_id in
+        <foreach collection="msgIdList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
 
 </mapper>

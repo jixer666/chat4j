@@ -140,4 +140,12 @@ public class ConversationServiceImpl extends ServiceImpl<ConversationMapper, Con
         AssertUtils.isNotEmpty(conversationContext.getRoomId(), "房间ID不能为空");
         AssertUtils.isTrue(CollectionUtil.isNotEmpty(conversationContext.getUserIdList()), "用户ID列表不能为空");
     }
+
+    @Override
+    public void updateActiveTimeBatchByRoomId(List<Conversation> conversationList) {
+        if (CollectionUtil.isEmpty(conversationList)) {
+            return;
+        }
+        conversationMapper.updateActiveTimeBatchByRoomId(conversationList);
+    }
 }

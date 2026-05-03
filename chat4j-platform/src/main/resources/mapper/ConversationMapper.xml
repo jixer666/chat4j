@@ -24,12 +24,12 @@
         select conversation_id, user_id, room_id, active_time, last_msg_id, status from tb_conversation
         <where>
             <if test="userId != null">and user_id = #{userId}</if>
-            <if test="minUpdateTime != null">and update_time >= #{minUpdateTime}</if>
+            <if test="minUpdateTime != null">and update_time > #{minUpdateTime}</if>
         </where>
     </select>
     <update id="updateActiveTimeByConversationId">
-        update tb_conversation set active_time = #{activeTime} and update_time = #{activeTime}
-        where conversation_id = #{conversationId} and user_id = #{userId
+        update tb_conversation set active_time = #{activeTime}, update_time = #{activeTime}
+        where conversation_id = #{conversationId} and user_id = #{userId}
     </update>
     <select id="selectConversationBydUidListAndRoomId" resultMap="ConversationResult">
         select * from tb_conversation where room_id = #{roomId} and user_id in
@@ -67,4 +67,13 @@
             )
         </foreach>
     </insert>
+    <update id="updateActiveTimeBatchByRoomId">
+        <foreach collection="conversationList" item="item" separator=";">
+            update tb_conversation
+            set last_msg_id = #{item.lastMsgId},
+            active_time = #{item.activeTime},
+            update_time = #{item.updateTime}
+            where room_id = #{item.roomId}
+        </foreach>
+    </update>
 </mapper>

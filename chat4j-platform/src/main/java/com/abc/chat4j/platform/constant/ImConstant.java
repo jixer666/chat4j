@@ -16,4 +16,7 @@ public class ImConstant {
 
     public static final String DEFAULT_CONVERSATION_MESSAGE = "我通过了你的朋友验证请求，现在我们可以开始聊天了";
 
+    public static final String DEFAULT_GROUP_CHAT_MESSAGE = "我发起了群聊，现在我们可以开始聊天了";
+
+
 }

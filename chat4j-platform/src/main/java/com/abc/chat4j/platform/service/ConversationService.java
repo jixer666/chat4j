@@ -19,4 +19,6 @@ public interface ConversationService extends IService<Conversation> {
     Conversation selectConversationBydUidAndRoomId(Long userId, Long roomId);
 
     List<Conversation> createConversation(ConversationCreateContext conversationContext);
+
+    void updateActiveTimeBatchByRoomId(List<Conversation> conversationList);
 }

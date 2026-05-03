@@ -1,6 +1,7 @@
 package com.abc.chat4j.platform.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.abc.chat4j.common.domain.enums.StatusEnum;
 import com.abc.chat4j.common.exception.GlobalException;
 import com.abc.chat4j.common.util.AssertUtils;
@@ -8,7 +9,10 @@ import com.abc.chat4j.common.util.IdUtils;
 import com.abc.chat4j.platform.cache.GroupRoomCache;
 import com.abc.chat4j.platform.cache.PrivateRoomCache;
 import com.abc.chat4j.platform.cache.RoomCache;
+import com.abc.chat4j.platform.constant.ImConstant;
+import com.abc.chat4j.platform.domain.context.ConversationCreateContext;
 import com.abc.chat4j.platform.domain.context.RoomCreateContext;
+import com.abc.chat4j.platform.domain.dto.StartGroupChatDTO;
 import com.abc.chat4j.platform.domain.entity.*;
 import com.abc.chat4j.platform.domain.enums.RoomTypeEnum;
 import com.abc.chat4j.platform.domain.vo.RoomInfoVO;
@@ -178,5 +182,34 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     private void checkCreateRoomParams(RoomCreateContext context) {
         AssertUtils.isNotEmpty(context, "创建房间参数不能为空");
         AssertUtils.isNotEmpty(context.getType(), "房间类型不能为空");
+    }
+
+    @Override
+    public RoomInfoVO startGroupChat(StartGroupChatDTO startGroupChatDTO) {
+        checkStartGroupChatParams(startGroupChatDTO);
+
+        // 创建群聊房间
+        RoomCreateContext context = new RoomCreateContext();
+        context.setType(RoomTypeEnum.GROUP.getType());
+        context.setUserId(startGroupChatDTO.getUserId());
+        context.setUserIdList(startGroupChatDTO.getUserIdList());
+        RoomInfoVO roomInfoVO = createRoom(context);
+        // 创建会话
+        ConversationCreateContext conversationContext = new ConversationCreateContext();
+        conversationContext.setRoomId(roomInfoVO.getRoomId());
+        conversationContext.setUserIdList(startGroupChatDTO.getUserIdList());
+        SpringUtil.getBean(ConversationService.class).createConversation(conversationContext);
+        // 发送默认消息
+        SpringUtil.getBean(MessageService.class).sendCreateDefaultMessage(
+                startGroupChatDTO.getUserId(), roomInfoVO.getRoomId(), ImConstant.DEFAULT_GROUP_CHAT_MESSAGE
+        );
+
+        return roomInfoVO;
+    }
+
+    private void checkStartGroupChatParams(StartGroupChatDTO startGroupChatDTO) {
+        AssertUtils.isNotEmpty(startGroupChatDTO, "参数不能为空");
+        AssertUtils.isNotEmpty(startGroupChatDTO.getUserId(), "发起者不能为空");
+        AssertUtils.isTrue(CollectionUtil.isNotEmpty(startGroupChatDTO.getUserIdList()), "邀请人列表不能为空");
     }
 }

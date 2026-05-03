@@ -29,7 +29,9 @@ import com.abc.chat4j.platform.domain.vo.RoomInfoVO;
 import com.abc.chat4j.platform.mapper.FriendApplyMapper;
 import com.abc.chat4j.platform.service.*;
 import com.abc.chat4j.system.cache.UserCache;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jdk.nashorn.internal.ir.IfNode;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,7 +111,11 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         context.setUserId(userId);
         context.setFriendId(friendId);
 
-        return selectFriendApply(context).get(0);
+        List<FriendApply> friendApplyList = selectFriendApply(context);
+        if (CollectionUtils.isEmpty(friendApplyList)) {
+            return null;
+        }
+        return friendApplyList.get(0);
     }
 
     @Override

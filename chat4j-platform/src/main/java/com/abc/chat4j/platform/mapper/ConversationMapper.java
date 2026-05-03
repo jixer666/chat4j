@@ -21,4 +21,6 @@ public interface ConversationMapper extends BaseMapper<Conversation> {
                                                              @Param("roomId") Long roomId);
 
     void insertConversationBatch(@Param("conversationList") List<Conversation> conversationList);
+
+    void updateActiveTimeBatchByRoomId(@Param("conversationList") List<Conversation> conversationList);
 }

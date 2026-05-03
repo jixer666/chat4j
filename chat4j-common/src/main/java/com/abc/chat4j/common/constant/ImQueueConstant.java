@@ -6,6 +6,8 @@ public class ImQueueConstant {
 
     public static final String MESSAGE_QUEUE = "messageQueue";
 
+    public static final String MESSAGE_CALLBACK_QUEUE = "messageCallBackQueue";
+
     public static final String FRIEND_APPLY_OPERATION_QUEUE = "friendApplyOperationQueue";
 
 

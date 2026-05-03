@@ -30,6 +30,7 @@ import com.abc.chat4j.platform.service.ConversationService;
 import com.abc.chat4j.platform.service.MessageService;
 import com.abc.chat4j.platform.service.RoomService;
 import com.abc.chat4j.system.cache.UserCache;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,5 +183,13 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         imSendInfo.setContent(textMessage);
 
         sendMessage(imSendInfo);
+    }
+
+    @Override
+    public void updateStatusByMsgIdList(Integer status, List<Long> msgIdList) {
+        if (CollectionUtils.isEmpty(msgIdList)) {
+            return;
+        }
+        messageMapper.updateStatusByMsgIdList(status, msgIdList);
     }
 }

@@ -14,16 +14,47 @@
     </resultMap>
 
     <sql id="selectRoomMemberVo">
-        select room_member_id, user_id, group_id, room_id, create_time, update_time, status, ver from tb_room_member
+        select room_member_id, user_id, group_id, room_id, create_time, update_time, status, ver from tb_group_member
     </sql>
     <select id="selectByRoomIdAndUid" resultMap="RoomMemberResult">
-        select * from tb_room_member
+        select * from tb_group_member
         where room_id = #{roomId} and user_id = #{userId}
+    </select>
+    <select id="selectGroupMemberByRoomId" resultMap="RoomMemberResult">
+        select * from tb_group_member
+        where room_id = #{roomId}
+    </select>
+    <insert id="insertGroupMemberBatch" parameterType="list">
+        insert into tb_group_member (
+        group_member_id,
+        user_id,
+        group_id,
+        room_id,
+        create_time,
+        update_time,
+        status,
+        ver
+        ) values
+        <foreach collection="groupMemberList" item="item" separator=",">
+            (
+            #{item.groupMemberId},
+            #{item.userId},
+            #{item.groupId},
+            #{item.roomId},
+            #{item.createTime},
+            #{item.updateTime},
+            #{item.status},
+            #{item.ver}
+            )
+        </foreach>
+    </insert>
+    <select id="selectGroupMemberByRoomIdAndUserIdList" resultMap="RoomMemberResult">
+        select * from tb_group_member
+        where room_id = #{roomId} and user_id in
+        <foreach collection="userIdList" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
     </select>
 
-    <select id="selectGroupMemberByRoomId" resultMap="RoomMemberResult">
-        select * from tb_room_member
-        where room_id = #{roomId} and user_id = #{userId}
-    </select>
 
 </mapper>
