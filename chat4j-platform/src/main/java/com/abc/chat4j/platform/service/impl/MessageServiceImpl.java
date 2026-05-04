@@ -63,6 +63,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     public List<MessageVO> selectOfflineMessageList(MessagePullDTO messagePullDTO) {
         checkMessagePullDTOParams(messagePullDTO);
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {}
         // 查询会话
         ConversationPullDTO conversationPullDTO = new ConversationPullDTO();
         conversationPullDTO.setMinUpdateTime(messagePullDTO.getMinUpdateTime());

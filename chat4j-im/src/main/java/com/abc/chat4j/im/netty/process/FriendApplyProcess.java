@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author LiJunXi
- * @date 2026/5/1
+ * @date 2026/5/4
  */
 @Component
-@MessageType(type = ImMessageTypeEnum.FRIEND_APPLY_OPERATION)
-public class FriendApplyOperationProcess extends MessageProcess<FriendApplyMessage> {
+@MessageType(type = ImMessageTypeEnum.FRIEND_APPLY)
+public class FriendApplyProcess extends MessageProcess<FriendApplyMessage> {
 }

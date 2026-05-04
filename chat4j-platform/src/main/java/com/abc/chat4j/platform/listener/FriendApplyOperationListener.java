@@ -23,12 +23,12 @@ import java.util.Objects;
  */
 @Slf4j
 @Component
-@RedisMQListener(queue = ImQueueConstant.FRIEND_APPLY_QUEUE)
-public class FriendApplyListener extends RedisMQConsumer<ImReceiveContext> {
+@RedisMQListener(queue = ImQueueConstant.FRIEND_APPLY_OPERATION_QUEUE)
+public class FriendApplyOperationListener extends RedisMQConsumer<ImReceiveContext> {
 
     @Override
     public void onMessage(List<ImReceiveContext> dataList) {
-        log.info("【friendApplyQueue】【消费消息】开始，数量：{}", dataList.size());
+        log.info("【friendApplyOperationQueue】【消费消息】开始，数量：{}", dataList.size());
         for (ImReceiveContext messageImReceiveContext : dataList) {
             ImSendUserInfo receiveUserInfo = messageImReceiveContext.getImReceiveUserInfo();
             ChannelHandlerContext channelCtx = UserChannelCtxMap.getChannelCtx(receiveUserInfo.getUserId(), receiveUserInfo.getDevice());
@@ -38,10 +38,10 @@ public class FriendApplyListener extends RedisMQConsumer<ImReceiveContext> {
             FriendApplyMessage friendApplyMessage = BeanUtil.copyProperties(messageImReceiveContext.getData(), FriendApplyMessage.class);
             ImSendInfo imSendInfo = new ImSendInfo();
             imSendInfo.setContent(friendApplyMessage);
-            imSendInfo.setType(ImMessageTypeEnum.FRIEND_APPLY.getType());
+            imSendInfo.setType(ImMessageTypeEnum.FRIEND_APPLY_OPERATION.getType());
             imSendInfo.setUserId(friendApplyMessage.getUserId());
             channelCtx.channel().writeAndFlush(imSendInfo);
         }
-        log.info("【friendApplyQueue】【消费消息】结束");
+        log.info("【friendApplyOperationQueue】【消费消息】结束");
     }
 }

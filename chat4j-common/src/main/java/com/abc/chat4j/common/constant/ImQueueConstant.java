@@ -10,6 +10,8 @@ public class ImQueueConstant {
 
     public static final String FRIEND_APPLY_OPERATION_QUEUE = "friendApplyOperationQueue";
 
+    public static final String FRIEND_APPLY_QUEUE = "friendApplyQueue";
+
 
     public static String getQueueKey(String queue) {
         return CacheConstants.getFinalKey(String.format("%s:%d", queue, ServerConfig.serverId));

@@ -98,7 +98,7 @@ public class UserFriendServiceImpl extends ServiceImpl<UserFriendMapper, UserFri
         userFriendVO.setUserId(user.getUserId());
         userFriendVO.setNickname(user.getNickname());
         userFriendVO.setAvatar(user.getAvatar());
-        userFriendVO.setIsFriend(Objects.nonNull(userFriend));
+        userFriendVO.setIsFriend(false);
 
         return userFriendVO;
     }

@@ -1,5 +1,6 @@
 package com.abc.chat4j.im.netty.process.model;
 
+import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
@@ -24,11 +25,11 @@ public class FriendApplyMessage {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long friendId;
 
+    private String remark;
+
     private Integer status;
 
     // 接收方需要的用户信息
-    private String nickname;
-
-    private String avatar;
+    private MessageUserInfo userInfo;
 
 }

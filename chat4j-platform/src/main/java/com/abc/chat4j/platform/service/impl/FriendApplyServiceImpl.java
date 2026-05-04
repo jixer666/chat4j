@@ -6,6 +6,7 @@ import com.abc.chat4j.common.constant.ImQueueConstant;
 import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.SecurityUtils;
+import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import com.abc.chat4j.im.domain.enums.ImMessageTypeEnum;
 import com.abc.chat4j.im.factory.MessageProcessFactory;
 import com.abc.chat4j.im.netty.process.MessageProcess;
@@ -18,7 +19,6 @@ import com.abc.chat4j.platform.domain.context.FriendApplyQueryContext;
 import com.abc.chat4j.platform.domain.context.RoomCreateContext;
 import com.abc.chat4j.platform.domain.dto.FriendApplyDTO;
 import com.abc.chat4j.platform.domain.dto.FriendApplyPullDTO;
-import com.abc.chat4j.platform.domain.entity.Conversation;
 import com.abc.chat4j.platform.domain.entity.FriendApply;
 import com.abc.chat4j.platform.domain.entity.UserFriend;
 import com.abc.chat4j.platform.domain.enums.FriendApplyStatusEnum;
@@ -31,7 +31,6 @@ import com.abc.chat4j.platform.service.*;
 import com.abc.chat4j.system.cache.UserCache;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jdk.nashorn.internal.ir.IfNode;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,39 +66,70 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
     @Override
     public FriendApplyVO sendFriendApply(FriendApplyDTO friendApplyDTO) {
         FriendApply friendApply = saveOrUpdateUserFriendApply(friendApplyDTO);
-        sendFriendApplyMessage(friendApply);
-        return BeanUtil.copyProperties(friendApply, FriendApplyVO.class);
+        Map<Long, User> userMap = userCache.getBatch(Arrays.asList(friendApply.getFriendId(), friendApply.getUserId()));
+        sendFriendApplyMessage(friendApply, userMap);
+        return buildfriendApplyVO(friendApply, userMap, friendApply.getUserId());
     }
 
-    private void sendFriendApplyMessage(FriendApply friendApply) {
+    private void sendFriendApplyMessage(FriendApply friendApply, Map<Long, User> userMap) {
+        MessageProcess<?> messageProcess = MessageProcessFactory.getService(ImMessageTypeEnum.FRIEND_APPLY.getType());
 
+        ImSendContext<FriendApplyMessage> context = new ImSendContext<>();
+        context.setImSendUserInfo(new ImSendUserInfo(SecurityUtils.getUserId(), SecurityUtils.getLoginUser().getDevice()));
+        context.setTargetUserIdList(CollectionUtil.newArrayList(friendApply.getFriendId()));
+
+        FriendApplyMessage friendApplyMessage = buildFriendMessage(friendApply, userMap.get(friendApply.getUserId()));
+
+        context.setData(friendApplyMessage);
+        context.setQueue(ImQueueConstant.FRIEND_APPLY_QUEUE);
+
+        messageProcess.process(context);
+    }
+
+    private FriendApplyMessage buildFriendMessage(FriendApply friendApply, User userInfo) {
+        FriendApplyMessage friendApplyMessage = new FriendApplyMessage();
+        friendApplyMessage.setFriendId(friendApply.getFriendId());
+        friendApplyMessage.setFriendApplyId(friendApply.getFriendApplyId());
+        friendApplyMessage.setFriendId(friendApply.getFriendId());
+        friendApplyMessage.setUserId(friendApply.getUserId());
+        friendApplyMessage.setStatus(friendApply.getStatus());
+        friendApplyMessage.setRemark(friendApply.getRemark());
+
+        if (Objects.nonNull(userInfo)) {
+            friendApplyMessage.setUserInfo(BeanUtil.copyProperties(userInfo, MessageUserInfo.class));
+        }
+
+        return friendApplyMessage;
     }
 
     private void checkUserFriendApplyDTOParams(FriendApplyDTO friendApplyDTO) {
         AssertUtils.isNotEmpty(friendApplyDTO, "好友请求参数不能为空");
         AssertUtils.isNotEmpty(friendApplyDTO.getFriendId(), "好友ID不能为空");
+        AssertUtils.isNotEmpty(friendApplyDTO.getFriendId().equals(friendApplyDTO.getUserId()), "无法添加自己为好友");
     }
 
     private FriendApply saveOrUpdateUserFriendApply(FriendApplyDTO friendApplyDTO) {
         checkUserFriendApplyDTOParams(friendApplyDTO);
 
-        FriendApply friendApply = new FriendApply();
         FriendApply findUserApply = selectFriendApplyByUserIdAndFriendId(friendApplyDTO.getUserId(), friendApplyDTO.getFriendId());
         if (Objects.nonNull(findUserApply)) {
             AssertUtils.isFalse(FriendApplyStatusEnum.PENDING.getStatus().equals(findUserApply.getStatus()), "已发送好友申请，请勿重复");
             AssertUtils.isFalse(FriendApplyStatusEnum.ACCEPT.getStatus().equals(findUserApply.getStatus()), "已是好友关系，请勿重复");
             // 已拒绝的申请变为待处理
-            friendApply.setStatus(FriendApplyStatusEnum.PENDING.getStatus());
-            friendApplyMapper.updateById(friendApply);
+            findUserApply.setStatus(FriendApplyStatusEnum.PENDING.getStatus());
+            // 更新申请信息
+            findUserApply.setRemark(friendApplyDTO.getRemark());
+            friendApplyMapper.updateById(findUserApply);
         } else {
-            friendApply.setUserId(friendApplyDTO.getUserId());
-            friendApply.setFriendId(friendApplyDTO.getFriendId());
-            friendApply.setRemark(friendApplyDTO.getRemark());
-            friendApply.setCommonParams();
-            friendApplyMapper.insert(friendApply);
+            findUserApply = new FriendApply();
+            findUserApply.setUserId(friendApplyDTO.getUserId());
+            findUserApply.setFriendId(friendApplyDTO.getFriendId());
+            findUserApply.setRemark(friendApplyDTO.getRemark());
+            findUserApply.setCommonParams();
+            friendApplyMapper.insert(findUserApply);
         }
 
-        return friendApply;
+        return findUserApply;
     }
 
     @Override
@@ -139,10 +169,10 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
     private List<FriendApplyVO> buildFriendApplyVOList(List<FriendApply> friendApplyList) {
         Set<Long> userIdSet = friendApplyList.stream().map(item -> SecurityUtils.getUserId().equals(item.getUserId()) ? item.getFriendId() : item.getUserId()).collect(Collectors.toSet());
         Map<Long, User> userMap = userCache.getBatch(new ArrayList<>(userIdSet));
-        return friendApplyList.stream().map(item -> buildfriendApplyVO(item, userMap)).collect(Collectors.toList());
+        return friendApplyList.stream().map(item -> buildfriendApplyVO(item, userMap, SecurityUtils.getUserId())).collect(Collectors.toList());
     }
 
-    private FriendApplyVO buildfriendApplyVO(FriendApply friendApply, Map<Long, User> userMap) {
+    private FriendApplyVO buildfriendApplyVO(FriendApply friendApply, Map<Long, User> userMap, Long userId) {
         FriendApplyVO friendApplyVO = new FriendApplyVO();
         friendApplyVO.setUserId(friendApply.getUserId());
         friendApplyVO.setFriendId(friendApply.getFriendId());
@@ -151,7 +181,7 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         friendApplyVO.setStatus(friendApply.getStatus());
         friendApplyVO.setCreateTime(friendApply.getCreateTime());
 
-        User user = userMap.get(SecurityUtils.getUserId().equals(friendApply.getUserId()) ? friendApply.getFriendId() : friendApply.getUserId());
+        User user = userMap.get(userId.equals(friendApply.getUserId()) ? friendApply.getFriendId() : friendApply.getUserId());
         if (Objects.nonNull(user)) {
             ImUserVO imUserVO = new ImUserVO();
             imUserVO.setUserId(user.getUserId());
@@ -209,7 +239,7 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
             sendConversationMessage(friendApply);
         }
 
-        return buildfriendApplyVO(friendApply, new HashMap<>());
+        return buildfriendApplyVO(friendApply, new HashMap<>(), SecurityUtils.getUserId());
     }
 
     private void sendConversationMessage(FriendApply friendApply) {
@@ -242,18 +272,13 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
     }
 
     private void sendFriendApplyOperationMessage(FriendApply friendApply) {
-        MessageProcess<?> messageProcess = MessageProcessFactory.getService(ImMessageTypeEnum.FRIEND_APPLY.getType());
+        MessageProcess<?> messageProcess = MessageProcessFactory.getService(ImMessageTypeEnum.FRIEND_APPLY_OPERATION.getType());
 
         ImSendContext<FriendApplyMessage> context = new ImSendContext<>();
         context.setImSendUserInfo(new ImSendUserInfo(SecurityUtils.getUserId(), SecurityUtils.getLoginUser().getDevice()));
         context.setTargetUserIdList(CollectionUtil.newArrayList(friendApply.getUserId()));
 
-        FriendApplyMessage friendApplyMessage = new FriendApplyMessage();
-        friendApplyMessage.setFriendId(friendApply.getFriendId());
-        friendApplyMessage.setFriendApplyId(friendApply.getFriendApplyId());
-        friendApplyMessage.setFriendId(friendApply.getFriendId());
-        friendApplyMessage.setUserId(friendApply.getUserId());
-        friendApplyMessage.setStatus(friendApply.getStatus());
+        FriendApplyMessage friendApplyMessage = buildFriendMessage(friendApply, null);
 
         context.setData(friendApplyMessage);
         context.setQueue(ImQueueConstant.FRIEND_APPLY_OPERATION_QUEUE);

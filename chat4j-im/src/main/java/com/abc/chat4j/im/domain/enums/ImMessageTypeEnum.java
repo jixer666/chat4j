@@ -14,7 +14,8 @@ public enum ImMessageTypeEnum {
     AUTHORIZATION(1, "认证"),
     HEART(2, "心跳"),
     TEXT(10, "文本"),
-    FRIEND_APPLY(100, "好友申请"),
+    FRIEND_APPLY_OPERATION(100, "好友申请处理"),
+    FRIEND_APPLY(101, "好友申请"),
 
 
     ERROR(9999, "错误信息"),
