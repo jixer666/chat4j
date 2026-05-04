@@ -41,6 +41,7 @@ public class MessageCallbackListener extends RedisMQConsumer<ImCallbackContext> 
             Conversation conversation = new Conversation();
             conversation.setRoomId(imCallbackContext.getRoomId());
             conversation.setLastMsgId(imCallbackContext.getMsgId());
+            conversation.setUpdateTime(imCallbackContext.getActiveTime());
             conversation.setActiveTime(imCallbackContext.getActiveTime());
             conversationList.add(conversation);
         }

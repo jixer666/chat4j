@@ -165,10 +165,11 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         AssertUtils.isNotEmpty(messageReadDTO.getType(), "读取消息类型不能为空");
         AssertUtils.isTrue(messageReadDTO.getType().equals(MessageReadDTO.READ_MESSAGE) ||
                 messageReadDTO.getType().equals(MessageReadDTO.READ_CONVERSATION), "读取消息类型不正确");
-        AssertUtils.isTrue(MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType()) &&
-                Objects.nonNull(messageReadDTO.getMsgIdList()), "读取消息列表不能为空");
-        AssertUtils.isTrue(MessageReadDTO.READ_CONVERSATION.equals(messageReadDTO.getType()) &&
-                Objects.nonNull(messageReadDTO.getConversationId()), "读取会话不能为空");
+        if (MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType())) {
+            AssertUtils.isTrue(CollectionUtil.isNotEmpty(messageReadDTO.getMsgIdList()), "读取消息列表不能为空");
+        } else {
+            AssertUtils.isTrue(Objects.nonNull(messageReadDTO.getConversationId()), "读取会话不能为空");
+        }
     }
 
     @Override
