@@ -28,4 +28,8 @@ public class Message extends BaseEntity {
 
     private Long roomId;
 
+    private Integer isWithdrawn;
+
+    private Integer isReceipt;
+
 }

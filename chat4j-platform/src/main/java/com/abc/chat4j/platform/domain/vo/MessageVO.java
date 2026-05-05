@@ -26,6 +26,12 @@ public class MessageVO {
 
     private Long roomId;
 
+    private Integer isReceipt;
+
+    private Integer isWithdrawn;
+
+    private Integer readCount;
+
     private Date createTime;
 
     private Integer status;

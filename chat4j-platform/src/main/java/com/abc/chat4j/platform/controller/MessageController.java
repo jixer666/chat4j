@@ -48,6 +48,7 @@ public class MessageController {
     @PostMapping("/read")
     public ApiResult<Void> readMessage(@RequestBody MessageReadDTO messageReadDTO) {
         messageReadDTO.setUserId(SecurityUtils.getUserId());
+        messageReadDTO.setDevice(SecurityUtils.getLoginUser().getDevice());
         messageService.readMessage(messageReadDTO);
         return ApiResult.success();
     }

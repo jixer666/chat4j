@@ -14,6 +14,7 @@ public class MessageReadDTO {
     private Integer type;
 
     // 读取消息ID列表
+    private Long roomId;
     private List<Long> msgIdList;
 
     // 读取的会话ID
@@ -21,5 +22,6 @@ public class MessageReadDTO {
 
     // 后端设置
     private Long userId;
+    private Integer device;
 
 }

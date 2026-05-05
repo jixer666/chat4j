@@ -3,6 +3,7 @@ package com.abc.chat4j.platform.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
+import com.abc.chat4j.common.constant.CommonConstants;
 import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.IdUtils;
@@ -19,6 +20,7 @@ import com.abc.chat4j.platform.constant.ImConstant;
 import com.abc.chat4j.platform.domain.dto.ConversationPullDTO;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
 import com.abc.chat4j.platform.domain.context.MessageQueryContext;
+import com.abc.chat4j.platform.domain.dto.MessageReadCountDTO;
 import com.abc.chat4j.platform.domain.dto.MessageReadDTO;
 import com.abc.chat4j.platform.domain.entity.Message;
 import com.abc.chat4j.im.domain.entity.MessageUserInfo;
@@ -27,6 +29,7 @@ import com.abc.chat4j.platform.domain.vo.ConversationVO;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.abc.chat4j.platform.mapper.MessageMapper;
 import com.abc.chat4j.platform.service.ConversationService;
+import com.abc.chat4j.platform.service.MessageReadService;
 import com.abc.chat4j.platform.service.MessageService;
 import com.abc.chat4j.platform.service.RoomService;
 import com.abc.chat4j.system.cache.UserCache;
@@ -59,13 +62,13 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     @Resource
     private ConversationService conversationService;
 
+    @Autowired
+    private MessageReadService messageReadService;
+
     @Override
     public List<MessageVO> selectOfflineMessageList(MessagePullDTO messagePullDTO) {
         checkMessagePullDTOParams(messagePullDTO);
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {}
         // 查询会话
         ConversationPullDTO conversationPullDTO = new ConversationPullDTO();
         conversationPullDTO.setMinUpdateTime(messagePullDTO.getMinUpdateTime());
@@ -77,7 +80,20 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         context.setRoomIdList(new ArrayList<>(roomIdSet));
         List<Message> messageList = selectMessage(context);
 
-        return BeanUtil.copyToList(messageList, MessageVO.class);
+        return buildMessageVOList(messageList);
+    }
+
+    private List<MessageVO> buildMessageVOList(List<Message> messageList) {
+        // 统计回执消息读取数量
+        List<Long> recepitMsgIdList = messageList.stream().filter(item -> CommonConstants.YES.equals(item.getIsReceipt())).map(Message::getMsgId).collect(Collectors.toList());
+        List<MessageReadCountDTO> msgReadCountDTOList = messageReadService.selectReadCountByMsgIdList(recepitMsgIdList);
+        Map<Long, Integer> msgReadCountMap = msgReadCountDTOList.stream().collect(Collectors.toMap(MessageReadCountDTO::getMsgId, MessageReadCountDTO::getReadCount));
+
+        return messageList.stream().map(item -> {
+            MessageVO messageVO = BeanUtil.copyProperties(item, MessageVO.class);
+            messageVO.setReadCount(msgReadCountMap.getOrDefault(item.getMsgId(), CommonConstants.ZERO));
+            return messageVO;
+        }).collect(Collectors.toList());
     }
 
     private List<Message> selectMessage(MessageQueryContext context) {
@@ -129,6 +145,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         message.setTempMsgId(imSendInfo.getTempMsgId());
         User user = userCache.get(imSendInfo.getUserId());
         message.setUserInfo(new MessageUserInfo(user.getUserId(), user.getUsername(), user.getNickname(), user.getAvatar()));
+        message.setIsReceipt(Objects.isNull(imSendInfo.getIsReceipt()) ? CommonConstants.NO : imSendInfo.getIsReceipt());
+        message.setIsWithdrawn(Objects.isNull(imSendInfo.getIsWithdrawn()) ?  CommonConstants.NO : imSendInfo.getIsWithdrawn());
         message.setCommonParams();
         message.setStatus(MessageStatusEnum.PENDING.getStatus());
 
@@ -150,11 +168,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     public void readMessage(MessageReadDTO messageReadDTO) {
         checkMessageReadDTOParams(messageReadDTO);
         if (MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType())) {
-            // todo 暂未实现消息消息级读取
-            if (CollectionUtil.isEmpty(messageReadDTO.getMsgIdList())) {
-                return;
-            }
-
+            // 消息消息级读取
+            messageReadService.markMessageRead(messageReadDTO);
+            // todo 消息推送
         } else {
             // 会话级读取
             conversationService.updateActiveTimeByConversationId(messageReadDTO.getConversationId(), messageReadDTO.getUserId(), new Date());
@@ -167,6 +183,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 messageReadDTO.getType().equals(MessageReadDTO.READ_CONVERSATION), "读取消息类型不正确");
         if (MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType())) {
             AssertUtils.isTrue(CollectionUtil.isNotEmpty(messageReadDTO.getMsgIdList()), "读取消息列表不能为空");
+            AssertUtils.isNotEmpty(messageReadDTO.getRoomId(), "房间Id不能为空");
         } else {
             AssertUtils.isTrue(Objects.nonNull(messageReadDTO.getConversationId()), "读取会话不能为空");
         }
@@ -195,5 +212,14 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
             return;
         }
         messageMapper.updateStatusByMsgIdList(status, msgIdList);
+    }
+
+    @Override
+    public List<Long> selectRecepitMessageByMsgIdList(List<Long> msgIdList) {
+        if (CollectionUtils.isEmpty(msgIdList)) {
+            return new ArrayList<>();
+        }
+
+        return messageMapper.selectReceiptMessageByMsgIdList(CommonConstants.YES, msgIdList);
     }
 }

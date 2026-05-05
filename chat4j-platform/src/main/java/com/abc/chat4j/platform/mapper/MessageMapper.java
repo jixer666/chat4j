@@ -18,4 +18,7 @@ public interface MessageMapper extends BaseMapper<Message> {
 
     void updateStatusByMsgIdList(@Param("status") Integer status,
                                  @Param("msgIdList") List<Long> msgIdList);
+
+    List<Long> selectReceiptMessageByMsgIdList(@Param("isReceipt") Integer isReceipt,
+                                               @Param("msgIdList") List<Long> msgIdList);
 }

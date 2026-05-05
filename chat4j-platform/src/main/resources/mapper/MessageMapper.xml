@@ -10,6 +10,8 @@
         <result property="type"    column="type"    />
         <result property="content"    column="content"    />
         <result property="roomId"    column="room_id"    />
+        <result property="isReceipt"    column="is_receipt"    />
+        <result property="isWithdrawn"    column="is_withdrawn"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
         <result property="status"    column="status"    />
@@ -17,11 +19,11 @@
     </resultMap>
 
     <sql id="selectMessageVo">
-        select msg_id, temp_msg_id, user_id, user_info, type, content, room_id, create_time, update_time, status, ver from tb_message
+        select msg_id, temp_msg_id, user_id, user_info, type, content, room_id, is_receipt, is_withdrawn, create_time, update_time, status, ver from tb_message
     </sql>
 
     <select id="selectMessageList" resultMap="MessageResult">
-        select msg_id, temp_msg_id, user_id, user_info, type, room_id, content, create_time, status
+        select msg_id, temp_msg_id, user_id, user_info, type, room_id, content, is_receipt, is_withdrawn, create_time, status
         from tb_message
         <where>
             <if test="userId != null">and user_id = #{userId}</if>
@@ -40,6 +42,12 @@
             #{item}
         </foreach>
     </update>
+    <select id="selectReceiptMessageByMsgIdList" resultType="java.lang.Long">
+        select msg_id from tb_message where is_receipt = #{isReceipt} and msg_id in
+        <foreach collection="msgIdList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 
 
 </mapper>

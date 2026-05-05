@@ -23,6 +23,10 @@ public class ImSendInfo {
 
     private Long tempMsgId;
 
+    private Integer isWithdrawn;
+
+    private Integer isReceipt;
+
     // 后端设置
     private Long userId;
     private Long msgId;
