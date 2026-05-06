@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
 import com.abc.chat4j.common.constant.CommonConstants;
+import com.abc.chat4j.common.constant.ImQueueConstant;
 import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.IdUtils;
@@ -13,9 +14,7 @@ import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.im.domain.enums.ImMessageTypeEnum;
 import com.abc.chat4j.im.factory.MessageProcessFactory;
 import com.abc.chat4j.im.netty.process.MessageProcess;
-import com.abc.chat4j.im.netty.process.model.ImSendContext;
-import com.abc.chat4j.im.netty.process.model.ImSendUserInfo;
-import com.abc.chat4j.im.netty.process.model.TextMessage;
+import com.abc.chat4j.im.netty.process.model.*;
 import com.abc.chat4j.platform.constant.ImConstant;
 import com.abc.chat4j.platform.domain.dto.ConversationPullDTO;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
@@ -170,11 +169,30 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         if (MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType())) {
             // 消息消息级读取
             messageReadService.markMessageRead(messageReadDTO);
-            // todo 消息推送
+            // 读取消息推送
+            sendReadMessage(messageReadDTO.getUserId(), messageReadDTO.getDevice(), messageReadDTO.getRoomId(), messageReadDTO.getMsgIdList());
         } else {
             // 会话级读取
             conversationService.updateActiveTimeByConversationId(messageReadDTO.getConversationId(), messageReadDTO.getUserId(), new Date());
         }
+    }
+
+    private void sendReadMessage(Long userId, Integer device, Long roomId, List<Long> msgIdList) {
+        MessageProcess<?> messageProcess = MessageProcessFactory.getService(ImMessageTypeEnum.MESSAGE_READ.getType());
+
+        ImSendContext<ReadMessage> context = new ImSendContext<>();
+        context.setImSendUserInfo(new ImSendUserInfo(userId, device));
+
+        List<Long> userIdList = roomService.getRoomMemberListByRoomId(roomId);
+        List<Long> finalUserIdList = userIdList.stream().filter(item -> !item.equals(userId)).collect(Collectors.toList());
+        context.setTargetUserIdList(finalUserIdList);
+
+        ReadMessage readMessage = new ReadMessage(userId, roomId, msgIdList);
+
+        context.setData(readMessage);
+        context.setQueue(ImQueueConstant.MESSAGE_READ_QUEUE);
+
+        messageProcess.process(context);
     }
 
     private void checkMessageReadDTOParams(MessageReadDTO messageReadDTO) {

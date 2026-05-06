@@ -16,6 +16,7 @@ public enum ImMessageTypeEnum {
     TEXT(10, "文本"),
     FRIEND_APPLY_OPERATION(100, "好友申请处理"),
     FRIEND_APPLY(101, "好友申请"),
+    MESSAGE_READ(102, "消息读取"),
 
 
     ERROR(9999, "错误信息"),
