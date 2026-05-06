@@ -24,10 +24,19 @@ public class MessageReadServiceImpl extends ServiceImpl<MessageReadMapper, Messa
     private MessageReadMapper messageReadMapper;
 
     @Override
-    public void markMessageRead(MessageReadDTO messageReadDTO) {
+    public List<Long> markMessageRead(MessageReadDTO messageReadDTO) {
         checkMarkMessageReadParams(messageReadDTO);
         // 筛选需要回执的消息
         List<Long> recepitMsgIdList = SpringUtil.getBean(MessageService.class).selectRecepitMessageByMsgIdList(messageReadDTO.getMsgIdList());
+        if (CollectionUtil.isEmpty(recepitMsgIdList)) {
+            return new ArrayList<>();
+        }
+        // 筛选已经保存的消息，防止重复保存
+        List<Long> existMsgId = messageReadMapper.selectReadCountByUserIdAndMsgIdList(messageReadDTO.getUserId(), recepitMsgIdList);
+        recepitMsgIdList.removeAll(existMsgId);
+        if (CollectionUtil.isEmpty(recepitMsgIdList)) {
+            return new ArrayList<>();
+        }
         List<MessageRead> messageReadList = recepitMsgIdList.stream().map(item -> {
             MessageRead messageRead = new MessageRead();
             messageRead.setReadId(IdUtils.getId());
@@ -37,7 +46,12 @@ public class MessageReadServiceImpl extends ServiceImpl<MessageReadMapper, Messa
             messageRead.setCreateTime(new Date());
             return messageRead;
         }).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(messageReadList)) {
+            return new ArrayList<>();
+        }
         messageReadMapper.insertMessageReadBatch(messageReadList);
+
+        return recepitMsgIdList;
     }
 
     private void checkMarkMessageReadParams(MessageReadDTO messageReadDTO) {
@@ -55,4 +69,12 @@ public class MessageReadServiceImpl extends ServiceImpl<MessageReadMapper, Messa
 
         return messageReadMapper.selectReadCountByMsgIdList(receiptMsgIdList);
     }
+
+    @Override
+    public List<Long> selectReadUserIdListByMsgId(Long msgId) {
+        AssertUtils.isNotEmpty(msgId, "消息ID不能为空");
+
+        return messageReadMapper.selectReadUserIdListByMsgId(msgId);
+    }
+
 }

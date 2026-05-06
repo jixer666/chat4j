@@ -17,7 +17,7 @@ public interface RoomService extends IService<Room> {
 
     List<RoomInfoVO> selectRoomInfoVOListByRoomIds(List<Long> roomIdList);
 
-    List<Long> getRoomMemberListByRoomId(Long roomId);
+    List<Long> selectRoomMemberListByRoomId(Long roomId);
 
     RoomInfoVO createRoom(RoomCreateContext context);
 

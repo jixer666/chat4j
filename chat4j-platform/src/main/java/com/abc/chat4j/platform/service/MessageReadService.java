@@ -9,7 +9,10 @@ import java.util.List;
 
 public interface MessageReadService extends IService<MessageRead> {
 
-    void markMessageRead(MessageReadDTO messageReadDTO);
+    List<Long> markMessageRead(MessageReadDTO messageReadDTO);
 
     List<MessageReadCountDTO> selectReadCountByMsgIdList(List<Long> recepitMsgIdList);
+
+    List<Long> selectReadUserIdListByMsgId(Long msgId);
+
 }

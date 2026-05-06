@@ -14,4 +14,9 @@ public interface MessageReadMapper extends BaseMapper<MessageRead> {
     void insertMessageReadBatch(@Param("messageReadList") List<MessageRead> messageReadList);
 
     List<MessageReadCountDTO> selectReadCountByMsgIdList(@Param("receiptMsgIdList") List<Long> receiptMsgIdList);
+
+    List<Long> selectReadCountByUserIdAndMsgIdList(@Param("userId") Long userId,
+                                                   @Param("msgIdList") List<Long> recepitMsgIdList);
+
+    List<Long> selectReadUserIdListByMsgId(@Param("msgId") Long msgId);
 }

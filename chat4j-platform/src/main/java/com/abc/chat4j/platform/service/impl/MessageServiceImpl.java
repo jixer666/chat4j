@@ -25,6 +25,8 @@ import com.abc.chat4j.platform.domain.entity.Message;
 import com.abc.chat4j.im.domain.entity.MessageUserInfo;
 import com.abc.chat4j.platform.domain.enums.MessageStatusEnum;
 import com.abc.chat4j.platform.domain.vo.ConversationVO;
+import com.abc.chat4j.platform.domain.vo.ImUserVO;
+import com.abc.chat4j.platform.domain.vo.MessageReadUserVO;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.abc.chat4j.platform.mapper.MessageMapper;
 import com.abc.chat4j.platform.service.ConversationService;
@@ -34,6 +36,7 @@ import com.abc.chat4j.platform.service.RoomService;
 import com.abc.chat4j.system.cache.UserCache;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -126,7 +129,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private ImSendContext<Message> buildImSendContext(Message message) {
         ImSendContext<Message> imSendContext = new ImSendContext<>();
         imSendContext.setData(message);
-        List<Long> userIdList = roomService.getRoomMemberListByRoomId(message.getRoomId());
+        List<Long> userIdList = roomService.selectRoomMemberListByRoomId(message.getRoomId());
         List<Long> finalUserIdList = userIdList.stream().filter(item -> !item.equals(message.getUserId())).collect(Collectors.toList());
         imSendContext.setTargetUserIdList(finalUserIdList);
         imSendContext.setImSendUserInfo(new ImSendUserInfo(message.getUserId(), SecurityUtils.getLoginUser().getDevice()));
@@ -168,9 +171,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         checkMessageReadDTOParams(messageReadDTO);
         if (MessageReadDTO.READ_MESSAGE.equals(messageReadDTO.getType())) {
             // 消息消息级读取
-            messageReadService.markMessageRead(messageReadDTO);
+            List<Long> msgIdList = messageReadService.markMessageRead(messageReadDTO);
+            if (CollectionUtil.isEmpty(msgIdList)) {
+                return;
+            }
             // 读取消息推送
-            sendReadMessage(messageReadDTO.getUserId(), messageReadDTO.getDevice(), messageReadDTO.getRoomId(), messageReadDTO.getMsgIdList());
+            sendReadMessage(messageReadDTO.getUserId(), messageReadDTO.getDevice(), messageReadDTO.getRoomId(), msgIdList);
         } else {
             // 会话级读取
             conversationService.updateActiveTimeByConversationId(messageReadDTO.getConversationId(), messageReadDTO.getUserId(), new Date());
@@ -183,7 +189,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         ImSendContext<ReadMessage> context = new ImSendContext<>();
         context.setImSendUserInfo(new ImSendUserInfo(userId, device));
 
-        List<Long> userIdList = roomService.getRoomMemberListByRoomId(roomId);
+        List<Long> userIdList = roomService.selectRoomMemberListByRoomId(roomId);
         List<Long> finalUserIdList = userIdList.stream().filter(item -> !item.equals(userId)).collect(Collectors.toList());
         context.setTargetUserIdList(finalUserIdList);
 
@@ -239,5 +245,39 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         }
 
         return messageMapper.selectReceiptMessageByMsgIdList(CommonConstants.YES, msgIdList);
+    }
+
+    @Override
+    public MessageReadUserVO selectReadUserInfo(MessageReadDTO messageReadDTO) {
+        checkMessageReadUserInfoDTOParams(messageReadDTO);
+
+        MessageReadUserVO messageReadUserVO = new MessageReadUserVO();
+        // 查询已读人员ID列表
+        List<Long> readUserIdList = messageReadService.selectReadUserIdListByMsgId(messageReadDTO.getMsgId());
+        Set<Long> groupUserIdSet = new HashSet<>(roomService.selectRoomMemberListByRoomId(messageReadDTO.getRoomId()));
+        // 查询未读人员ID列表
+        List<Long> unReadUserIdList = readUserIdList.stream().filter(item -> !groupUserIdSet.contains(item)).collect(Collectors.toList());
+        List<Long> allUserIdList = Lists.newArrayList(readUserIdList);
+        allUserIdList.addAll(unReadUserIdList);
+        Map<Long, User> userMap = userCache.getBatch(allUserIdList);
+
+        List<ImUserVO> readUserList = readUserIdList.stream().map(item -> {
+            User user = userMap.get(item);
+            return BeanUtil.copyProperties(user, ImUserVO.class);
+        }).collect(Collectors.toList());
+        List<ImUserVO> unReadUserList = unReadUserIdList.stream().map(item -> {
+            User user = userMap.get(item);
+            return BeanUtil.copyProperties(user, ImUserVO.class);
+        }).collect(Collectors.toList());
+        messageReadUserVO.setReadUserList(readUserList);
+        messageReadUserVO.setUnReadUserList(unReadUserList);
+
+        return messageReadUserVO;
+    }
+
+    private void checkMessageReadUserInfoDTOParams(MessageReadDTO messageReadDTO) {
+        AssertUtils.isNotEmpty(messageReadDTO, "参数不能为空");
+        AssertUtils.isNotEmpty(messageReadDTO.getMsgId(), "消息ID不能为空");
+        AssertUtils.isNotEmpty(messageReadDTO.getRoomId(), "房间ID不能为空");
     }
 }

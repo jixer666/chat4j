@@ -5,6 +5,7 @@ import com.abc.chat4j.common.util.SecurityUtils;
 import com.abc.chat4j.im.domain.dto.ImSendInfo;
 import com.abc.chat4j.platform.domain.dto.MessagePullDTO;
 import com.abc.chat4j.platform.domain.dto.MessageReadDTO;
+import com.abc.chat4j.platform.domain.vo.MessageReadUserVO;
 import com.abc.chat4j.platform.domain.vo.MessageVO;
 import com.abc.chat4j.platform.service.MessageService;
 import io.swagger.annotations.Api;
@@ -53,4 +54,10 @@ public class MessageController {
         return ApiResult.success();
     }
 
+    @ApiOperation("已读未读人员详情")
+    @PostMapping("/readUserInfo")
+    public ApiResult<MessageReadUserVO> readUserInfo(@RequestBody MessageReadDTO messageReadDTO) {
+        MessageReadUserVO messageReadUserVO = messageService.selectReadUserInfo(messageReadDTO);
+        return ApiResult.success(messageReadUserVO);
+    }
 }

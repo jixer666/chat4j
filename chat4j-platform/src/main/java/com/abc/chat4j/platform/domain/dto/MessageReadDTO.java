@@ -20,6 +20,9 @@ public class MessageReadDTO {
     // 读取的会话ID
     private Long conversationId;
 
+    // 用于查询具体的已读未读人员列表
+    private Long msgId;
+
     // 后端设置
     private Long userId;
     private Integer device;

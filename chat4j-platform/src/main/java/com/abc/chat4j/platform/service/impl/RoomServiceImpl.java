@@ -120,7 +120,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     }
 
     @Override
-    public List<Long> getRoomMemberListByRoomId(Long roomId) {
+    public List<Long> selectRoomMemberListByRoomId(Long roomId) {
         if (Objects.isNull(roomId)) {
             return new ArrayList<>();
         }

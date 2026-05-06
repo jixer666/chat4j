@@ -28,5 +28,14 @@
         </foreach>
         group by msg_id
     </select>
+    <select id="selectReadCountByUserIdAndMsgIdList" resultType="java.lang.Long">
+        select msg_id from tb_message_read where user_id = #{userId} and msg_id in
+        <foreach collection="msgIdList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectReadUserIdListByMsgId" resultType="java.lang.Long">
+        select user_id from tb_message_read where msg_id = {msgId}
+    </select>
 
 </mapper>
