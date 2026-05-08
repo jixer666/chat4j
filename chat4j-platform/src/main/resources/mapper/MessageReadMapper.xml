@@ -35,7 +35,7 @@
         </foreach>
     </select>
     <select id="selectReadUserIdListByMsgId" resultType="java.lang.Long">
-        select user_id from tb_message_read where msg_id = {msgId}
+        select user_id from tb_message_read where msg_id = #{msgId}
     </select>
 
 </mapper>

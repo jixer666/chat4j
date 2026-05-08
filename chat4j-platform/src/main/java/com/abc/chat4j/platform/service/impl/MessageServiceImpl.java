@@ -129,7 +129,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private ImSendContext<Message> buildImSendContext(Message message) {
         ImSendContext<Message> imSendContext = new ImSendContext<>();
         imSendContext.setData(message);
-        List<Long> userIdList = roomService.selectRoomMemberListByRoomId(message.getRoomId());
+        List<Long> userIdList = roomService.selectRoomMemberIdListByRoomId(message.getRoomId());
         List<Long> finalUserIdList = userIdList.stream().filter(item -> !item.equals(message.getUserId())).collect(Collectors.toList());
         imSendContext.setTargetUserIdList(finalUserIdList);
         imSendContext.setImSendUserInfo(new ImSendUserInfo(message.getUserId(), SecurityUtils.getLoginUser().getDevice()));
@@ -189,7 +189,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         ImSendContext<ReadMessage> context = new ImSendContext<>();
         context.setImSendUserInfo(new ImSendUserInfo(userId, device));
 
-        List<Long> userIdList = roomService.selectRoomMemberListByRoomId(roomId);
+        List<Long> userIdList = roomService.selectRoomMemberIdListByRoomId(roomId);
         List<Long> finalUserIdList = userIdList.stream().filter(item -> !item.equals(userId)).collect(Collectors.toList());
         context.setTargetUserIdList(finalUserIdList);
 
@@ -253,15 +253,15 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
         MessageReadUserVO messageReadUserVO = new MessageReadUserVO();
         // 查询已读人员ID列表
-        List<Long> readUserIdList = messageReadService.selectReadUserIdListByMsgId(messageReadDTO.getMsgId());
-        Set<Long> groupUserIdSet = new HashSet<>(roomService.selectRoomMemberListByRoomId(messageReadDTO.getRoomId()));
+        Set<Long> readUserIdSet = new HashSet<>(messageReadService.selectReadUserIdListByMsgId(messageReadDTO.getMsgId()));
+        List<Long> groupUserIdList = roomService.selectRoomMemberIdListByRoomId(messageReadDTO.getRoomId());
         // 查询未读人员ID列表
-        List<Long> unReadUserIdList = readUserIdList.stream().filter(item -> !groupUserIdSet.contains(item)).collect(Collectors.toList());
-        List<Long> allUserIdList = Lists.newArrayList(readUserIdList);
+        List<Long> unReadUserIdList = groupUserIdList.stream().filter(item -> !readUserIdSet.contains(item) && !item.equals(SecurityUtils.getUserId())).collect(Collectors.toList());
+        List<Long> allUserIdList = Lists.newArrayList(readUserIdSet);
         allUserIdList.addAll(unReadUserIdList);
         Map<Long, User> userMap = userCache.getBatch(allUserIdList);
 
-        List<ImUserVO> readUserList = readUserIdList.stream().map(item -> {
+        List<ImUserVO> readUserList = readUserIdSet.stream().map(item -> {
             User user = userMap.get(item);
             return BeanUtil.copyProperties(user, ImUserVO.class);
         }).collect(Collectors.toList());

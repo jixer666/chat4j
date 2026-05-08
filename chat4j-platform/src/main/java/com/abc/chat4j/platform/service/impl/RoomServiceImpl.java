@@ -1,7 +1,9 @@
 package com.abc.chat4j.platform.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.abc.chat4j.common.domain.entity.User;
 import com.abc.chat4j.common.domain.enums.StatusEnum;
 import com.abc.chat4j.common.exception.GlobalException;
 import com.abc.chat4j.common.util.AssertUtils;
@@ -12,12 +14,15 @@ import com.abc.chat4j.platform.cache.RoomCache;
 import com.abc.chat4j.platform.constant.ImConstant;
 import com.abc.chat4j.platform.domain.context.ConversationCreateContext;
 import com.abc.chat4j.platform.domain.context.RoomCreateContext;
+import com.abc.chat4j.platform.domain.dto.RoomDTO;
 import com.abc.chat4j.platform.domain.dto.StartGroupChatDTO;
 import com.abc.chat4j.platform.domain.entity.*;
 import com.abc.chat4j.platform.domain.enums.RoomTypeEnum;
+import com.abc.chat4j.platform.domain.vo.ImUserVO;
 import com.abc.chat4j.platform.domain.vo.RoomInfoVO;
 import com.abc.chat4j.platform.mapper.RoomMapper;
 import com.abc.chat4j.platform.service.*;
+import com.abc.chat4j.system.cache.UserCache;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +56,9 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
 
     @Autowired
     private GroupMemberService groupMemberService;
+
+    @Autowired
+    private UserCache userCache;
 
     @Override
     public Room selectRoomByRoomId(Long roomId) {
@@ -120,7 +128,7 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     }
 
     @Override
-    public List<Long> selectRoomMemberListByRoomId(Long roomId) {
+    public List<Long> selectRoomMemberIdListByRoomId(Long roomId) {
         if (Objects.isNull(roomId)) {
             return new ArrayList<>();
         }
@@ -211,5 +219,19 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         AssertUtils.isNotEmpty(startGroupChatDTO, "参数不能为空");
         AssertUtils.isNotEmpty(startGroupChatDTO.getUserId(), "发起者不能为空");
         AssertUtils.isTrue(CollectionUtil.isNotEmpty(startGroupChatDTO.getUserIdList()), "邀请人列表不能为空");
+    }
+
+    @Override
+    public List<ImUserVO> selectRoomMemberListByRoomId(RoomDTO roomDTO) {
+        checkSelectRoomMemberListParams(roomDTO);
+        List<Long> userIdList = selectRoomMemberIdListByRoomId(roomDTO.getRoomId());
+        Map<Long, User> userMap = userCache.getBatch(userIdList);
+
+        return userIdList.stream().map(item -> BeanUtil.copyProperties(userMap.get(item), ImUserVO.class)).collect(Collectors.toList());
+    }
+
+    private void checkSelectRoomMemberListParams(RoomDTO roomDTO) {
+        AssertUtils.isNotEmpty(roomDTO, "参数不能为空");
+        AssertUtils.isNotEmpty(roomDTO.getRoomId(), "房间ID不能为空");
     }
 }
