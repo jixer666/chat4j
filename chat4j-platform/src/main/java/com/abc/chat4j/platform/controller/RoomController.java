@@ -33,7 +33,7 @@ public class RoomController {
         return ApiResult.success(roomInfoVO);
     }
 
-    @ApiOperation("群成员列表")
+    @ApiOperation("房间成员列表")
     @PostMapping("/memberList")
     public ApiResult<List<ImUserVO>> memberList(@RequestBody RoomDTO roomDTO) {
         List<ImUserVO> userList = roomService.selectRoomMemberListByRoomId(roomDTO);

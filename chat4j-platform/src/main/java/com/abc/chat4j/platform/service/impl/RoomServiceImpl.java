@@ -8,6 +8,7 @@ import com.abc.chat4j.common.domain.enums.StatusEnum;
 import com.abc.chat4j.common.exception.GlobalException;
 import com.abc.chat4j.common.util.AssertUtils;
 import com.abc.chat4j.common.util.IdUtils;
+import com.abc.chat4j.common.util.SecurityUtils;
 import com.abc.chat4j.platform.cache.GroupRoomCache;
 import com.abc.chat4j.platform.cache.PrivateRoomCache;
 import com.abc.chat4j.platform.cache.RoomCache;
@@ -224,7 +225,11 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
     @Override
     public List<ImUserVO> selectRoomMemberListByRoomId(RoomDTO roomDTO) {
         checkSelectRoomMemberListParams(roomDTO);
-        List<Long> userIdList = selectRoomMemberIdListByRoomId(roomDTO.getRoomId());
+        // 单聊只显示自己，群聊显示群成员
+        Room room = selectRoomByRoomId(roomDTO.getRoomId());
+        List<Long> userIdList = RoomTypeEnum.PRIVATE.getType().equals(room.getType()) ?
+                Arrays.asList(SecurityUtils.getUserId())
+                :selectRoomMemberIdListByRoomId(roomDTO.getRoomId());
         Map<Long, User> userMap = userCache.getBatch(userIdList);
 
         return userIdList.stream().map(item -> BeanUtil.copyProperties(userMap.get(item), ImUserVO.class)).collect(Collectors.toList());
