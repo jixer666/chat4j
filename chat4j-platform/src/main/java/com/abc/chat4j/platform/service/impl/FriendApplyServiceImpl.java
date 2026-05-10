@@ -19,10 +19,12 @@ import com.abc.chat4j.platform.domain.context.FriendApplyQueryContext;
 import com.abc.chat4j.platform.domain.context.RoomCreateContext;
 import com.abc.chat4j.platform.domain.dto.FriendApplyDTO;
 import com.abc.chat4j.platform.domain.dto.FriendApplyPullDTO;
+import com.abc.chat4j.platform.domain.entity.Conversation;
 import com.abc.chat4j.platform.domain.entity.FriendApply;
 import com.abc.chat4j.platform.domain.entity.UserFriend;
 import com.abc.chat4j.platform.domain.enums.FriendApplyStatusEnum;
 import com.abc.chat4j.platform.domain.enums.RoomTypeEnum;
+import com.abc.chat4j.platform.domain.vo.ConversationVO;
 import com.abc.chat4j.platform.domain.vo.FriendApplyVO;
 import com.abc.chat4j.platform.domain.vo.ImUserVO;
 import com.abc.chat4j.platform.domain.vo.RoomInfoVO;
@@ -232,17 +234,19 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
             return null;
         });
 
+        FriendApplyVO friendApplyVO = buildfriendApplyVO(friendApply, new HashMap<>(), SecurityUtils.getUserId());
         // 推送申请处理消息
         sendFriendApplyOperationMessage(friendApply);
         if (FriendApplyDTO.ACCEPT.equals(friendApplyDTO.getOperationType())) {
             // 创建会话，主动推送一条消息
-            sendConversationMessage(friendApply);
+            ConversationVO conversationVO = sendConversationMessage(friendApply);
+            friendApplyVO.setConversation(conversationVO);
         }
 
-        return buildfriendApplyVO(friendApply, new HashMap<>(), SecurityUtils.getUserId());
+        return friendApplyVO;
     }
 
-    private void sendConversationMessage(FriendApply friendApply) {
+    private ConversationVO sendConversationMessage(FriendApply friendApply) {
         // 创建私聊房间
         RoomCreateContext roomContext = new RoomCreateContext();
         roomContext.setType(RoomTypeEnum.PRIVATE.getType());
@@ -253,9 +257,21 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         ConversationCreateContext conversationContext = new ConversationCreateContext();
         conversationContext.setRoomId(roomInfo.getRoomId());
         conversationContext.setUserIdList(CollectionUtil.newArrayList(friendApply.getUserId(), friendApply.getFriendId()));
-        conversationService.createConversation(conversationContext);
+        List<Conversation> conversationList = conversationService.createConversation(conversationContext);
         // 好友同意好友申请，主动推送一条消息
         messageService.sendCreateDefaultMessage(friendApply.getFriendId(), roomInfo.getRoomId(), friendApply.getRemark());
+        // 推送会话创建消息
+        ConversationVO conversationVO = conversationList.stream()
+                .filter(item -> item.getUserId().equals(friendApply.getFriendId()))
+                .map(item -> {
+                    ConversationVO conversationVOItem = BeanUtil.copyProperties(item, ConversationVO.class);
+                    conversationVOItem.setRoomInfo(roomInfo);
+                    return conversationVOItem;
+                }).findFirst().orElse(null);
+        if (Objects.nonNull(conversationVO)) {
+            messageService.sendCreateConversationMessage(conversationVO, friendApply.getUserId());
+        }
+        return conversationVO;
     }
 
     private void saveUserFriend(FriendApply friendApply) {

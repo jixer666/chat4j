@@ -280,4 +280,17 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         AssertUtils.isNotEmpty(messageReadDTO.getMsgId(), "消息ID不能为空");
         AssertUtils.isNotEmpty(messageReadDTO.getRoomId(), "房间ID不能为空");
     }
+
+    @Override
+    public void sendCreateConversationMessage(ConversationVO conversationVO, Long userId) {
+        MessageProcess<?> messageProcess = MessageProcessFactory.getService(ImMessageTypeEnum.CONVERSATION_CREATE.getType());
+
+        ImSendContext<ConversationVO> context = new ImSendContext<>();
+        context.setImSendUserInfo(new ImSendUserInfo(SecurityUtils.getUserId(), SecurityUtils.getLoginUser().getDevice()));
+        context.setTargetUserIdList(Lists.newArrayList(userId));
+        context.setData(conversationVO);
+        context.setQueue(ImQueueConstant.CONVERSATION_QUEUE);
+
+        messageProcess.process(context);
+    }
 }

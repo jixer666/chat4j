@@ -14,6 +14,8 @@ public class ImQueueConstant {
 
     public static final String MESSAGE_READ_QUEUE = "messageReadQueue";
 
+    public static final String CONVERSATION_QUEUE = "conversationQueue";
+
 
     public static String getQueueKey(String queue) {
         return CacheConstants.getFinalKey(String.format("%s:%d", queue, ServerConfig.serverId));

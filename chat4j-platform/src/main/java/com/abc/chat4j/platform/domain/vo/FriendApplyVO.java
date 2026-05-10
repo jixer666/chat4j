@@ -26,4 +26,7 @@ public class FriendApplyVO {
     // 请求方用户信息
     private ImUserVO userInfo;
 
+    // 同意申请才会有值
+    private ConversationVO conversation;
+
 }

@@ -24,6 +24,7 @@ public class ImSendContext<T> {
     private ImSendUserInfo imSendUserInfo;
 
     // 目标方用户ID列表
+    // 创建的时候不能用Arrays.asList
     private List<Long> targetUserIdList;
 
     // 消息内容
