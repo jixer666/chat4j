@@ -57,8 +57,7 @@ public class RegisterDTO {
         AssertUtils.isNotEmpty(passwordAgain, "确认密码不能为空");
         AssertUtils.isTrue(password.equalsIgnoreCase(passwordAgain), "两次输入密码不一致");
         AssertUtils.isNotEmpty(authType, "注册方式不能为空");
-        AssertUtils.isNotEmpty(uuid, "验证码不能为空");
-        AssertUtils.isNotEmpty(code, "验证码不能为空");
+        checkEmailParams();
     }
 
     public void checkEmailParams() {

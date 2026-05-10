@@ -3,6 +3,7 @@ package com.abc.chat4j.system.strategy.email;
 import cn.hutool.core.util.RandomUtil;
 import com.abc.chat4j.common.constant.CacheConstants;
 import com.abc.chat4j.common.exception.GlobalException;
+import com.abc.chat4j.common.util.EnvironmentUtils;
 import com.abc.chat4j.common.util.RedisUtils;
 import com.abc.chat4j.system.constant.EmailConstants;
 import com.abc.chat4j.system.convert.EmailConvert;
@@ -28,7 +29,9 @@ public class RegisterEmailStrategy implements EmailStrategy {
         saveRegisterCode(emailDTO);
 
         try {
-            doSend(mailSender, emailDTO);
+            if (!EnvironmentUtils.isDev()) {
+                doSend(mailSender, emailDTO);
+            }
         } catch (Exception e) {
             log.error("发送注册邮件出错，{}", e.getMessage(), e);
             throw new GlobalException("发送注册邮件出错");

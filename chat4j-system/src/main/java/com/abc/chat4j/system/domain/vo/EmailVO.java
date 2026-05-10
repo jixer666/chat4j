@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EmailVO {
 
-    private String email;
+    private String emailCode;
 
     private String emailUuid;
 
